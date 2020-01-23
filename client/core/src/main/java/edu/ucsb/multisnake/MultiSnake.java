@@ -1,6 +1,7 @@
 package edu.ucsb.multisnake;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import org.mini2Dx.core.game.BasicGame;
@@ -28,6 +29,8 @@ public class MultiSnake extends BasicGame {
     
     @Override
     public void render(Graphics g) {
-		g.drawTexture(texture, 0f, 0f);
+      g.setColor(Color.GREEN);
+      g.drawCircle(800,800,64);
+		  g.drawTexture(texture, 0f, 0f);
     }
 }
