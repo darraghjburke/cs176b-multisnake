@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import org.mini2Dx.core.game.BasicGame;
 import org.mini2Dx.core.graphics.Graphics;
+import java.net.*;
+import java.io.*;
 
 public class MultiSnake extends BasicGame {
 	public static final String GAME_IDENTIFIER = "edu.ucsb.multisnake";
@@ -14,7 +16,29 @@ public class MultiSnake extends BasicGame {
 	
 	@Override
     public void initialise() {
-    	texture = new Texture("mini2Dx.png");
+ 
+      String hostname = "localhost";
+      int port = 8000;
+      Socket socket;
+      try {
+          socket = new Socket(hostname, port);
+          InputStream input = socket.getInputStream();
+          BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+          String time = reader.readLine();
+
+          System.out.println(time);
+
+
+      } catch (UnknownHostException ex) {
+
+          System.out.println("Server not found: " + ex.getMessage());
+
+      } catch (IOException ex) {
+
+          System.out.println("I/O error: " + ex.getMessage());
+      }
+      
     }
     
     @Override
@@ -31,6 +55,5 @@ public class MultiSnake extends BasicGame {
     public void render(Graphics g) {
       g.setColor(Color.GREEN);
       g.drawCircle(800,800,64);
-		  g.drawTexture(texture, 0f, 0f);
     }
 }
