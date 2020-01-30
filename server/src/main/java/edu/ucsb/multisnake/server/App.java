@@ -12,9 +12,7 @@ public class App {
     }
 
     public static void main(String[] args) {
-        //if (args.length < 1) return;
- 
-        //int port = Integer.parseInt(args[0]);
+
         int port = 8000;
         try (ServerSocket serverSocket = new ServerSocket(port)) {
  
@@ -25,10 +23,11 @@ public class App {
  
                 System.out.println("New client connected");
  
-                OutputStream output = socket.getOutputStream();
+                BufferedOutputStream output = new BufferedOutputStream(socket.getOutputStream());
                 PrintWriter writer = new PrintWriter(output, true);
  
                 writer.println(new Date().toString());
+                output.flush();
             }
  
         } catch (IOException ex) {

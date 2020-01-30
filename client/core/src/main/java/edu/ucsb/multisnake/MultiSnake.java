@@ -12,7 +12,8 @@ import java.io.*;
 public class MultiSnake extends BasicGame {
 	public static final String GAME_IDENTIFIER = "edu.ucsb.multisnake";
 
-	private Texture texture;
+  private Texture texture;
+  private float x,y;
 	
 	@Override
     public void initialise() {
@@ -22,7 +23,7 @@ public class MultiSnake extends BasicGame {
       Socket socket;
       try {
           socket = new Socket(hostname, port);
-          InputStream input = socket.getInputStream();
+          BufferedInputStream input = new BufferedInputStream(socket.getInputStream());
           BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
           String time = reader.readLine();
@@ -43,7 +44,6 @@ public class MultiSnake extends BasicGame {
     
     @Override
     public void update(float delta) {
-    
     }
     
     @Override
@@ -54,6 +54,7 @@ public class MultiSnake extends BasicGame {
     @Override
     public void render(Graphics g) {
       g.setColor(Color.GREEN);
-      g.drawCircle(800,800,64);
+      g.drawCircle(Gdx.input.getX(), Gdx.input.getY(), 40);;
+      g.setTranslation(-Gdx.input.getX(), -Gdx.input.getY());
     }
 }
