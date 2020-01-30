@@ -6,7 +6,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import org.mini2Dx.core.game.BasicGame;
 import org.mini2Dx.core.graphics.Graphics;
+
+import edu.ucsb.multisnake.Utils.ClientPacketType;
+
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.io.*;
 
 public class MultiSnake extends BasicGame {
@@ -14,21 +19,21 @@ public class MultiSnake extends BasicGame {
 
   private Texture texture;
   private float x,y;
+  BufferedInputStream input;
+  BufferedOutputStream output;
+  int bytesRead;
+  Socket socket;
 	
 	@Override
     public void initialise() {
  
       String hostname = "localhost";
       int port = 8000;
-      Socket socket;
+      
       try {
           socket = new Socket(hostname, port);
-          BufferedInputStream input = new BufferedInputStream(socket.getInputStream());
-          BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-          String time = reader.readLine();
-
-          System.out.println(time);
+          input = new BufferedInputStream(socket.getInputStream());
+          output = new BufferedOutputStream(socket.getOutputStream());
 
 
       } catch (UnknownHostException ex) {
@@ -44,6 +49,23 @@ public class MultiSnake extends BasicGame {
     
     @Override
     public void update(float delta) {
+      try {
+        byte buffer[] = new byte[4096];
+        
+        Packet p = new Packet(ClientPacketType.LOGIN, 20);
+        p.putInt(1);
+        p.putInt(2);
+        p.putInt(3);
+        p.putInt(4);
+
+        p.send(output);
+
+        bytesRead = input.read(buffer);
+        System.out.println(Arrays.toString(Arrays.copyOfRange(buffer, 0, bytesRead)));
+
+      } catch (IOException ex) {
+        System.out.println("I/O error: " + ex.getMessage());
+      }
     }
     
     @Override
