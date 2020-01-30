@@ -54,7 +54,7 @@ public class MultiSnake extends BasicGame {
     @Override
     public void render(Graphics g) {
       g.setColor(Color.GREEN);
-      g.drawCircle(Gdx.input.getX(), Gdx.input.getY(), 40);;
+      g.fillCircle(Gdx.input.getX(), Gdx.input.getY(), 40);;
       g.setTranslation(-Gdx.input.getX(), -Gdx.input.getY());
     }
 }
