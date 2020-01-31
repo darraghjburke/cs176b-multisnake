@@ -7,15 +7,15 @@ import java.nio.ByteBuffer;
 public class Packet {
 
     public static class ClientPacketType {
-        public static int LOGIN = 1;
-        public static int MOVE = 2;
-        public static int QUIT = 3;
+        public static final int LOGIN = 1;
+        public static final int MOVE = 2;
+        public static final int QUIT = 3;
     }
 
     public static class ServerPacketType {
-        public static int ASSIGN_ID = -1;
-        public static int BCAST_PLAYERS = -2;
-        public static int BCAST_FOOD = -3;
+        public static final int ASSIGN_ID = -1;
+        public static final int BCAST_PLAYERS = -2;
+        public static final int BCAST_FOOD = -3;
     }
     
     ByteBuffer bb;
