@@ -1,0 +1,39 @@
+package edu.ucsb.multisnake.server;
+
+import java.io.*;
+import java.net.Socket;
+import java.nio.ByteBuffer;
+
+public class Connection extends Thread {
+    public BufferedInputStream input;
+    public BufferedOutputStream output;
+    public Socket socket;
+
+    public Connection(Socket socket) throws IOException {
+        super("Connection");
+        System.out.println("New client connected");
+        this.socket = socket;
+        input = new BufferedInputStream(socket.getInputStream());
+        output = new BufferedOutputStream(socket.getOutputStream());
+    }
+
+    public void run() {
+        int bytesRead;
+        byte buffer[] = new byte[4096];
+        try {
+            while ((bytesRead = input.read(buffer)) > 0) {
+                System.out.println("Bytes read: " + bytesRead);
+                ByteBuffer bb = ByteBuffer.wrap(buffer);
+                    for (int i=0; i<=3; i++){
+                        int a = bb.getInt();
+                        System.out.println(a);
+                    }
+                output.write(buffer, 0, bytesRead); // write it back
+                output.flush();    // flush the output buffer
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+}
