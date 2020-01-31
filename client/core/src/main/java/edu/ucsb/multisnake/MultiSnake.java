@@ -2,23 +2,18 @@ package edu.ucsb.multisnake;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import org.mini2Dx.core.game.BasicGame;
 import org.mini2Dx.core.graphics.Graphics;
 
-import edu.ucsb.multisnake.Utils.ClientPacketType;
+import edu.ucsb.multisnake.Packet.ClientPacketType;
 
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.io.*;
 
 public class MultiSnake extends BasicGame {
-	public static final String GAME_IDENTIFIER = "edu.ucsb.multisnake";
+  public static final String GAME_IDENTIFIER = "edu.ucsb.multisnake";
 
-  private Texture texture;
-  private float x,y;
   BufferedInputStream input;
   BufferedOutputStream output;
   int bytesRead;
