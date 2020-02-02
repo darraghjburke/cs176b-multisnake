@@ -2,23 +2,18 @@ package edu.ucsb.multisnake;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import org.mini2Dx.core.game.BasicGame;
 import org.mini2Dx.core.graphics.Graphics;
 
-import edu.ucsb.multisnake.Utils.ClientPacketType;
+import edu.ucsb.multisnake.Packet.ServerPacketType;
 
 import java.net.*;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.io.*;
 
 public class MultiSnake extends BasicGame {
-	public static final String GAME_IDENTIFIER = "edu.ucsb.multisnake";
+  public static final String GAME_IDENTIFIER = "edu.ucsb.multisnake";
 
-  private Texture texture;
-  private float x,y;
   BufferedInputStream input;
   BufferedOutputStream output;
   int bytesRead;
@@ -49,20 +44,18 @@ public class MultiSnake extends BasicGame {
     
     @Override
     public void update(float delta) {
-      try {
         byte buffer[] = new byte[4096];
-        
-        Packet p = new Packet(ClientPacketType.LOGIN, 20);
-        p.putInt(1);
-        p.putInt(2);
-        p.putInt(3);
-        p.putInt(4);
 
-        p.send(output);
-
-        bytesRead = input.read(buffer);
-        System.out.println(Arrays.toString(Arrays.copyOfRange(buffer, 0, bytesRead)));
-
+        try {
+          System.out.println(input.available());
+            while (input.available() > 0) {
+              bytesRead = input.read(buffer);
+              System.out.println(bytesRead);
+              if (bytesRead > 0) {
+                ByteBuffer bb = ByteBuffer.wrap(buffer);
+                processPacket(bb);
+              }
+          }
       } catch (IOException ex) {
         System.out.println("I/O error: " + ex.getMessage());
       }
@@ -78,5 +71,34 @@ public class MultiSnake extends BasicGame {
       g.setColor(Color.GREEN);
       g.fillCircle(Gdx.input.getX(), Gdx.input.getY(), 40);;
       g.setTranslation(-Gdx.input.getX(), -Gdx.input.getY());
+    }
+
+    public void processPacket(ByteBuffer bb) {
+      while(bb.hasRemaining()) {
+        int packetType = bb.getInt();
+        int seqNumber,id,r,g,b,x,y;
+        switch (packetType) {
+          case ServerPacketType.ASSIGN_ID:
+            id = bb.getInt();
+            r = bb.getInt();
+            g = bb.getInt();
+            b = bb.getInt();
+            x = bb.getInt();
+            y = bb.getInt();
+            System.out.printf("[ASSIGN_ID] ID: %d x: %d y: %d r: %d g: %d b: %d \n", id, x, y, r, g, b);
+            break;
+
+          case ServerPacketType.BCAST_PLAYERS:
+            seqNumber = bb.getInt();
+            id = bb.getInt();
+            r = bb.getInt();
+            g = bb.getInt();
+            b = bb.getInt();
+            x = bb.getInt();
+            y = bb.getInt();
+            System.out.printf("[BCAST] SeqNumber: %d ID: %d x: %d y: %d r: %d g: %d b: %d \n", seqNumber, id, x, y, r, g, b);
+            break;
+        }
+      }
     }
 }
