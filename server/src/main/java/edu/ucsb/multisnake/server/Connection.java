@@ -45,6 +45,12 @@ public class Connection extends Thread {
                         p.send(output);
                     break;
                     case ClientPacketType.MOVE:
+                        int seqNumber = bb.getInt();
+                        int x = bb.getInt();
+                        int y = bb.getInt();
+                        double distance = Math.sqrt( Math.pow(x - player.getX(), 2) + Math.pow(y - player.getY(),2));
+                        player.setX(x);
+                        player.setY(y);
                     // TODO : update player position
                     break;
                     case ClientPacketType.QUIT:
