@@ -11,15 +11,17 @@ public class Connection extends Thread {
     public BufferedInputStream input;
     public BufferedOutputStream output;
     public Socket socket;
+    private Player player;
 
-    public Connection(Socket socket) throws IOException {
+    public Connection(Socket socket, Player p) throws IOException {
         super("Connection");
         System.out.println("New client connected");
         this.socket = socket;
+        this.player = p;
         input = new BufferedInputStream(socket.getInputStream());
         output = new BufferedOutputStream(socket.getOutputStream());
     }
-
+  
     public void run() {
         int bytesRead;
         byte buffer[] = new byte[4096];
