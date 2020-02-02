@@ -14,6 +14,7 @@ public class Connection extends Thread {
     public Socket socket;
     private World world;
     private Player player;
+    private boolean isConnected;
 
     public Connection(Socket socket, Player p, World w) throws IOException {
         super("Connection");
@@ -21,11 +22,13 @@ public class Connection extends Thread {
         this.socket = socket;
         this.player = p;
         this.world = w;
+        isConnected = true;
         input = new BufferedInputStream(socket.getInputStream());
         output = new BufferedOutputStream(socket.getOutputStream());
     }
   
     public void run() {
+        if (!isConnected) return;
         int bytesRead;
         byte buffer[] = new byte[4096];
         try {
@@ -55,7 +58,7 @@ public class Connection extends Thread {
                     break;
                     case ClientPacketType.QUIT:
                     // TODO : delete player
-                    world.deletePlayerWithId(player.getId());
+                    disconnect();
                     break;
                 }
             }
@@ -69,6 +72,7 @@ public class Connection extends Thread {
     }
 
     public void broadcast() {
+        if (!isConnected) return;
         for(int i = 0; i < world.getPlayers().size(); i++) {
             Player pl = world.getPlayers().get(i);
             Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, 32);
@@ -79,7 +83,16 @@ public class Connection extends Thread {
             p.putInt(pl.getB());
             p.putInt(pl.getX());
             p.putInt(pl.getY());
-            p.send(output);
+            boolean sent = p.send(output);
+            if (!sent) {
+                disconnect();
+                return;
+            }
         }
+    }
+
+    private void disconnect() {
+        isConnected = false;
+        world.deletePlayerWithId(player.getId());
     }
 }

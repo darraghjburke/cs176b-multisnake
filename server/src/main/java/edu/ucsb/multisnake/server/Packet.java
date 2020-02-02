@@ -32,10 +32,11 @@ public class Packet {
         bb.putInt(i);
     }
 
-    public void send(BufferedOutputStream output) {
+    public boolean send(BufferedOutputStream output) {
         try {
             output.write(bb.array(), 0, length);
             output.flush(); 
+            return true;
         }
         catch (SocketException e) {
             System.out.println("(Warning) Could not send packet because client disconnected!");
@@ -44,7 +45,7 @@ public class Packet {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+        return false;
     }
 
 }
