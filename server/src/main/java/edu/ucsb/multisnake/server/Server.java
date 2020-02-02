@@ -18,7 +18,9 @@ public class Server {
  
             while (true) {
                 Socket socket = serverSocket.accept();
-                Connection c = new Connection(socket, w.spawnPlayer());
+                Player p = w.spawnPlayer();
+                Connection c = new Connection(socket, p, w);
+                p.setConnection(c);
                 c.start();
             }
  

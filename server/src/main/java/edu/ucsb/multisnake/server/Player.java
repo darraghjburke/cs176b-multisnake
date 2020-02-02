@@ -1,22 +1,18 @@
 package edu.ucsb.multisnake.server;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Random;
-
 public class Player {
     private int id;
     private int x, y;
     private int r, b, g;
+    private Connection conn;
 
-    public Player(int id, int x, int y, int r, int b, int g) {
+    public Player(int id, int x, int y, int r, int g, int b) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.r = r;
-        this.b = b;
         this.g = g;
+        this.b = b;
     }
 
     public int getId() {
@@ -46,25 +42,33 @@ public class Player {
 		return this.r;
     }
     
-    public int getB()
-    {
-		return this.b;
-	}
-
     public int getG()
     {
 		return this.g;
+	}
+
+    public int getB()
+    {
+		return this.b;
     }
     
-    public void setColor(int r, int b, int g)
+    public void setColor(int r, int g, int b)
     {
         this.r = r;
-        this.b = b;
         this.g = g;
+        this.b = b;
     }
     
     public String toString() {
-        return id + "," + x + "," + y + "," + r + "," + b + "," + g;
+        return id + "," + x + "," + y + "," + r + "," + g + "," + b;
+    }
+
+    public void setConnection(Connection c) {
+      this.conn = c;
+    }
+
+    public Connection getConnection() {
+      return this.conn;
     }
 
 }

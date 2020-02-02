@@ -27,13 +27,14 @@ public class World extends Thread{
     public Player spawnPlayer() {
         Random rand = new Random();
         int x, y;
-        int saturation = 175;
-        int brightness = 175;
+        float saturation = 175;
+        float brightness = 175;
         int EXPECTED_MAX = 15;
         int HUE_FACTOR = 255 / EXPECTED_MAX;
-        int hue = (numOfPlayers * HUE_FACTOR) % 255;
+        float hue = (numOfPlayers * HUE_FACTOR) % 255;
 
-        int rgb = Color.HSBtoRGB(hue, saturation, brightness);
+        int rgb = Color.HSBtoRGB(hue/256, saturation/256, brightness/256);
+        System.out.println("Hue: " + hue + ", RGB: " + rgb);
         int r = (rgb >> 16) & 0xFF;
         int g = (rgb >> 8) & 0xFF;
         int b = rgb & 0xFF;
@@ -41,7 +42,7 @@ public class World extends Thread{
             x = rand.nextInt(radius);
             y = rand.nextInt(radius);
         } while (Math.sqrt(x * x + y * y) < radius);
-        Player p = new Player(numOfPlayers++, x, y, r, b, g);
+        Player p = new Player(numOfPlayers++, x, y, r, g, b);
 
         players.add(p);
         return p;
@@ -59,6 +60,15 @@ public class World extends Thread{
         return f;
     }
 
+    public void deletePlayerWithId(int id) {
+        for(int i = 0; i < players.size(); i++) {
+            if (players.get(i).getId() == id) {
+                players.remove(i);
+                break;
+            }
+        }
+    }
+
     public void printWorld() {
         for (int i = 0; i < players.size(); i++) {
             System.out.println(players.get(i).toString());
@@ -70,8 +80,11 @@ public class World extends Thread{
         while (true) {
             long now = System.currentTimeMillis();
             long updateLength = now - lastLoopTime;
-            if (updateLength >= 50) {
+            if (updateLength >= 100) {
                 lastLoopTime = now;
+                for(int i = 0; i < players.size(); i++) {
+                    players.get(i).getConnection().broadcast();
+                }
                 printWorld();
             }
             try {
@@ -81,6 +94,10 @@ public class World extends Thread{
                 e.printStackTrace();
             }
         }
+    }
+
+    public List<Player> getPlayers() {
+        return this.players;
     }
 
 
