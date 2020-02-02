@@ -2,6 +2,7 @@ package edu.ucsb.multisnake.server;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 
 public class Packet {
@@ -35,7 +36,11 @@ public class Packet {
         try {
             output.write(bb.array(), 0, length);
             output.flush(); 
-        } catch (IOException e) {
+        }
+        catch (SocketException e) {
+            System.out.println("(Warning) Could not send packet because client disconnected!");
+        }
+        catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
