@@ -26,6 +26,7 @@ public class Connection extends Thread {
     }
   
     public void run() {
+        int bytesRead;
         byte buffer[] = new byte[4096];
         try {
             while ((bytesRead = input.read(buffer)) > 0) {
