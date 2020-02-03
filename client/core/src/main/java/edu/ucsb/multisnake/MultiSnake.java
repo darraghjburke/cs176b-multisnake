@@ -85,7 +85,7 @@ public class MultiSnake extends BasicGame {
         for(int i = 0; i < otherPlayers.size(); i++) {
             Player pl = otherPlayers.get(i);
             if (pl != null){
-                Color c = new Color(pl.getR(), pl.getG(), pl.getB(), 255); // TODO : need to send alpha?
+                Color c = new Color(pl.getR()/225f, pl.getG()/225f, pl.getB()/225f, 1f); 
                 g.setColor(c);
                 int x = pl.getX();
                 int y = pl.getY();
@@ -95,7 +95,7 @@ public class MultiSnake extends BasicGame {
         }
         me = world.getMe();
         if (me != null){
-            Color c = new Color(me.getR(), me.getG(), me.getB(), 255); // TODO : need to send alpha?
+            Color c = new Color(me.getR()/225f, me.getG()/225f, me.getB()/225f, 1f);
             g.setColor(c);
             int x = Gdx.input.getX();
             int y = Gdx.input.getY();
