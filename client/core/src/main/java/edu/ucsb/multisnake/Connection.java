@@ -36,26 +36,7 @@ public class Connection extends Thread {
             while ((bytesRead = input.read(buffer)) > 0) {
                 // System.out.println("Bytes read: " + bytesRead);
                 ByteBuffer bb = ByteBuffer.wrap(buffer);
-                int packetType = bb.getInt();
-                int seqNumber, id, r, g, b, x, y;
-                switch (packetType) {
-                case ServerPacketType.BCAST_PLAYERS:
-                    seqNumber = bb.getInt();
-                    id = bb.getInt();
-                    r = bb.getInt();
-                    g = bb.getInt();
-                    b = bb.getInt();
-                    x = bb.getInt();
-                    y = bb.getInt();
-                    System.out.printf("[BCAST] SeqNumber: %d ID: %d x: %d y: %d r: %d g: %d b: %d \n", seqNumber, id, x,
-                            y, r, g, b);
-                    // TODO : update player position
-                    break;
-                case ServerPacketType.BCAST_FOOD:
-                    // TODO : display food
-                    // disconnect();
-                    break;
-                }
+                processPacket(bb);
             }
         } catch (SocketException e) {
             System.out.println("Server disconnected");
@@ -78,7 +59,7 @@ public class Connection extends Thread {
             disconnect();
             return;
         } else { // not sure why if get rid of the println, the server won't get it
-            System.out.println("Player successfully sent location");
+            // System.out.println("Player successfully sent location");
         }
     }
 
@@ -91,4 +72,34 @@ public class Connection extends Thread {
             e.printStackTrace();
         }
     }
+
+    public void processPacket(ByteBuffer bb) {
+        while(bb.hasRemaining()) {
+          int packetType = bb.getInt();
+          int seqNumber,id,r,g,b,x,y;
+          switch (packetType) {
+            case ServerPacketType.ASSIGN_ID:
+              id = bb.getInt();
+              r = bb.getInt();
+              g = bb.getInt();
+              b = bb.getInt();
+              x = bb.getInt();
+              y = bb.getInt();
+              System.out.printf("[ASSIGN_ID] ID: %d x: %d y: %d r: %d g: %d b: %d \n", id, x, y, r, g, b);
+              break;
+  
+            case ServerPacketType.BCAST_PLAYERS:
+              seqNumber = bb.getInt();
+              id = bb.getInt();
+              r = bb.getInt();
+              g = bb.getInt();
+              b = bb.getInt();
+              x = bb.getInt();
+              y = bb.getInt();
+              System.out.printf("[BCAST] SeqNumber: %d ID: %d x: %d y: %d r: %d g: %d b: %d \n", seqNumber, id, x, y, r, g, b);
+              break;
+          }
+        }
+      }
+  
 }

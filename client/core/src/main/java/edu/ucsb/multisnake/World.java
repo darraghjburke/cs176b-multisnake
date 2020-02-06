@@ -74,4 +74,8 @@ public class World extends Thread{
     public List<Food> getFood() {
         return this.food;
     }
+
+    public int getRadius() {
+        return radius;
+    }
 }
