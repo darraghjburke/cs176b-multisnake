@@ -81,6 +81,8 @@ public class MultiSnake extends BasicGame {
     
     @Override
     public void render(Graphics g) {
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(0,0,world.getRadius()*2,world.getRadius()*2);
         g.setColor(Color.WHITE);
         g.fillCircle(width / 2 , height / 2, world.getRadius());
         List<Player> otherPlayers = world.getPlayers();
