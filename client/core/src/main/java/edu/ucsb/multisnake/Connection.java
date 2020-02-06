@@ -58,8 +58,6 @@ public class Connection extends Thread {
             System.out.println("Player cannot send location");
             disconnect();
             return;
-        } else { // not sure why if get rid of the println, the server won't get it
-            // System.out.println("Player successfully sent location");
         }
     }
 
