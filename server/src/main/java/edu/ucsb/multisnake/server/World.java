@@ -13,7 +13,7 @@ public class World extends Thread{
     private List<Player> players;
     private int numOfPlayers = 0;
     private List<Food> food;
-    private int radius = 640;
+    private int radius = 400;
 
     public World() {
         players = new ArrayList<Player>();
