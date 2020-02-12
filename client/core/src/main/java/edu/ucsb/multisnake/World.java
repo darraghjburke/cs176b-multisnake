@@ -1,13 +1,7 @@
 package edu.ucsb.multisnake;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.Math;
-import java.util.Random;
-import java.awt.Color;
 
 public class World extends Thread {
     private List<Player> otherPlayers;
@@ -23,6 +17,11 @@ public class World extends Thread {
         // run();
     }
 
+    public void addPlayer(Player p) {
+        otherPlayers.add(p);
+        numOfPlayers++;
+    }
+
     public void deletePlayerWithId(int id) {
         for (int i = 0; i < otherPlayers.size(); i++) {
             if (otherPlayers.get(i).getId() == id) {
@@ -30,6 +29,16 @@ public class World extends Thread {
                 break;
             }
         }
+    }
+
+    public Player getPlayerWithId(int id) {
+        for (int i = 0; i < otherPlayers.size(); i++) {
+            Player pl = otherPlayers.get(i);
+            if (pl.getId()==id) {
+                return pl;
+            }
+        }
+        return null;
     }
 
     public void printWorld() {
