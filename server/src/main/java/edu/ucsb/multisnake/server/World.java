@@ -13,7 +13,7 @@ public class World extends Thread{
     private List<Player> players;
     private int numOfPlayers = 0;
     private List<Food> food;
-    private int radius = 640;
+    private int radius = 400;
 
     public World() {
         players = new ArrayList<Player>();
@@ -29,8 +29,7 @@ public class World extends Thread{
         int x, y;
         float saturation = 175;
         float brightness = 175;
-        int EXPECTED_MAX = 15;
-        int HUE_FACTOR = 255 / EXPECTED_MAX;
+        int HUE_FACTOR = 30;
         float hue = (numOfPlayers * HUE_FACTOR) % 255;
 
         int rgb = Color.HSBtoRGB(hue/256, saturation/256, brightness/256);
@@ -41,7 +40,7 @@ public class World extends Thread{
         do {
             x = rand.nextInt(radius);
             y = rand.nextInt(radius);
-        } while (Math.sqrt(x * x + y * y) < radius);
+        } while (Math.sqrt(x * x + y * y) > radius);
         Player p = new Player(numOfPlayers++, x, y, r, g, b);
 
         players.add(p);
@@ -54,7 +53,7 @@ public class World extends Thread{
         do {
             x = rand.nextInt(radius);
             y = rand.nextInt(radius);
-        } while (Math.sqrt(x * x + y * y) < radius);
+        } while (Math.sqrt(x * x + y * y) > radius);
         Food f = new Food(x, y);
         food.add(f);
         return f;
@@ -70,9 +69,11 @@ public class World extends Thread{
     }
 
     public void printWorld() {
+        System.out.println("PLAYERS");
         for (int i = 0; i < players.size(); i++) {
-            System.out.println(players.get(i).toString());
+            System.out.printf("{%s},", players.get(i).toString());
         }
+        System.out.printf("/n");
     }
 
     public void run() {
@@ -85,7 +86,7 @@ public class World extends Thread{
                 for(int i = 0; i < players.size(); i++) {
                     players.get(i).getConnection().broadcast();
                 }
-                printWorld();
+                // printWorld();
             }
             try {
                 Thread.sleep(10);
@@ -99,9 +100,5 @@ public class World extends Thread{
     public List<Player> getPlayers() {
         return this.players;
     }
-
-
-
-
     
 }

@@ -54,6 +54,7 @@ public class Connection extends Thread {
                         double distance = Math.sqrt( Math.pow(x - player.getX(), 2) + Math.pow(y - player.getY(),2));
                         player.setX(x);
                         player.setY(y);
+                        System.out.printf("[MOVE] SeqNumber: %d x: %d y: %d \n", seqNumber, x, y);
                     // TODO : update player position
                     break;
                     case ClientPacketType.QUIT:
