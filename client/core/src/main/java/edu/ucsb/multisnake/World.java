@@ -9,7 +9,7 @@ import java.lang.Math;
 import java.util.Random;
 import java.awt.Color;
 
-public class World extends Thread{
+public class World extends Thread {
     private List<Player> otherPlayers;
     private int numOfPlayers = 0;
     private List<Food> food;
@@ -24,7 +24,7 @@ public class World extends Thread{
     }
 
     public void deletePlayerWithId(int id) {
-        for(int i = 0; i < otherPlayers.size(); i++) {
+        for (int i = 0; i < otherPlayers.size(); i++) {
             if (otherPlayers.get(i).getId() == id) {
                 otherPlayers.remove(i);
                 break;
@@ -44,7 +44,7 @@ public class World extends Thread{
         while (true) {
             long now = System.currentTimeMillis();
             long updateLength = now - lastLoopTime;
-            if (updateLength >= 50) {
+            if (updateLength >= 17 && me != null && me.getConnection() != null) {
                 lastLoopTime = now;
                 me.getConnection().send_location();
             }
