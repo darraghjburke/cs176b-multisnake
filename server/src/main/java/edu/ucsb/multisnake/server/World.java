@@ -1,8 +1,5 @@
 package edu.ucsb.multisnake.server;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.Math;
@@ -49,12 +46,22 @@ public class World extends Thread{
 
     public Food spawnFood() {
         Random rand = new Random();
-        int x, y;
+        int x, y, size;
+        float saturation = 175;
+        float brightness = 175;
+        int HUE_FACTOR = 30;
+        float hue = (numOfPlayers * HUE_FACTOR) % 255;
+
+        int rgb = Color.HSBtoRGB(hue/256, saturation/256, brightness/256);
+        int r = (rgb >> 16) & 0xFF;
+        int g = (rgb >> 8) & 0xFF;
+        int b = rgb & 0xFF;
         do {
             x = rand.nextInt(radius);
             y = rand.nextInt(radius);
+            size = rand.nextInt(20) + 5; // size is random from 5 to 25 (inclusive)
         } while (Math.sqrt(x * x + y * y) > radius);
-        Food f = new Food(x, y);
+        Food f = new Food(x, y, size, r, g, b);
         food.add(f);
         return f;
     }

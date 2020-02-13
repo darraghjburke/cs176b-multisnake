@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.EllipseShapeBuilder;
+
 import edu.ucsb.multisnake.Packet.ClientPacketType;
 import edu.ucsb.multisnake.Packet.ServerPacketType;
 
@@ -77,25 +79,42 @@ public class Connection extends Thread {
           int seqNumber,id,r,g,b,x,y;
           switch (packetType) {
             case ServerPacketType.ASSIGN_ID:
-              id = bb.getInt();
-              r = bb.getInt();
-              g = bb.getInt();
-              b = bb.getInt();
-              x = bb.getInt();
-              y = bb.getInt();
-              System.out.printf("[ASSIGN_ID] ID: %d x: %d y: %d r: %d g: %d b: %d \n", id, x, y, r, g, b);
-              break;
+                id = bb.getInt();
+                r = bb.getInt();
+                g = bb.getInt();
+                b = bb.getInt();
+                x = bb.getInt();
+                y = bb.getInt();
+                System.out.printf("[ASSIGN_ID] ID: %d x: %d y: %d r: %d g: %d b: %d \n", id, x, y, r, g, b);
+                break;
   
             case ServerPacketType.BCAST_PLAYERS:
-              seqNumber = bb.getInt();
-              id = bb.getInt();
-              r = bb.getInt();
-              g = bb.getInt();
-              b = bb.getInt();
-              x = bb.getInt();
-              y = bb.getInt();
-              System.out.printf("[BCAST] SeqNumber: %d ID: %d x: %d y: %d r: %d g: %d b: %d \n", seqNumber, id, x, y, r, g, b);
-              break;
+                seqNumber = bb.getInt();
+                id = bb.getInt();
+                r = bb.getInt();
+                g = bb.getInt();
+                b = bb.getInt();
+                x = bb.getInt();
+                y = bb.getInt();
+                System.out.printf("[BCAST] SeqNumber: %d ID: %d x: %d y: %d r: %d g: %d b: %d \n", seqNumber, id, x, y, r, g, b);
+                
+                // add other player to world
+                if (id != world.getMe().getId()) {
+                    Player p = world.getPlayerWithId(id);
+                    // player not in world
+                    if (p == null) {
+                        world.addPlayer(new Player(id, x, y, r, g, b));        
+                    // update position for other players
+                    } else {            
+                        p.setX(x);
+                        p.setY(y);
+                    }
+                }
+                break;
+
+            case ServerPacketType.BCAST_FOOD:
+                // TODO: add food to food list
+                break;
           }
         }
       }
