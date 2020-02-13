@@ -7,6 +7,7 @@ import org.mini2Dx.core.graphics.Graphics;
 
 import edu.ucsb.multisnake.Packet.ClientPacketType;
 import edu.ucsb.multisnake.Packet.ServerPacketType;
+import edu.ucsb.multisnake.Utils.IntPair;
 
 import java.net.*;
 import java.nio.ByteBuffer;
@@ -53,7 +54,8 @@ public class MultiSnake extends BasicGame {
                         x = bb.getInt();
                         y = bb.getInt();
                         System.out.printf("[ASSIGN_ID] ID: %d x: %d y: %d r: %d g: %d b: %d \n", id, x, y, r, g, b);
-                        me = new Player(id, x, y, r, g, b);
+                        me = new Player(id, r, g, b);
+                        me.addPositions(new IntPair(x,y));
                         world.setMe(me);
                         Connection c = new Connection(socket, me, world);
                         me.setConnection(c);
@@ -85,27 +87,34 @@ public class MultiSnake extends BasicGame {
         g.fillRect(0,0,world.getRadius()*2,world.getRadius()*2);
         g.setColor(Color.WHITE);
         g.fillCircle(width / 2 , height / 2, world.getRadius());
-        List<Player> otherPlayers = world.getPlayers();
-        for(int i = 0; i < otherPlayers.size(); i++) {
-            Player pl = otherPlayers.get(i);
+        List<Player> Players = world.getPlayers();
+        for(int i = 0; i < Players.size(); i++) {
+            Player pl = Players.get(i);
             if (pl != null){
-                Color c = new Color(pl.getR()/255f, pl.getG()/255f, pl.getB()/255f, 1f); 
-                g.setColor(c);
-                int x = pl.getX();
-                int y = pl.getY();
-                g.fillCircle(x, y, 40);
+                if ( me!=null && pl.getId() == me.getId() ) {
+                    Color c = new Color(me.getR()/255f, me.getG()/255f, me.getB()/255f, 1f);
+                    g.setColor(c);
+                    int new_x = Gdx.input.getX();
+                    int new_y = Gdx.input.getY();
+                    IntPair p = new IntPair(new_x,new_y);
+                    me.move(p);
+                    for (int j = 0; j < me.getLength(); j++) {
+                        int x = me.getPositions().get(j).getX();
+                        int y = me.getPositions().get(j).getY();
+                        g.fillCircle(x, y, 40);
+                    }
+                } else {
+                    Color c = new Color(pl.getR()/255f, pl.getG()/255f, pl.getB()/255f, 1f); 
+                    g.setColor(c);
+                    for (int j = 0; j < pl.getLength(); j++) {
+                        int x = pl.getPositions().get(j).getX();
+                        int y = pl.getPositions().get(j).getY();
+                        g.fillCircle(x, y, 40);
+                    }
+                }
             }
         }
-        me = world.getMe();
-        if (me != null){
-            Color c = new Color(me.getR()/255f, me.getG()/255f, me.getB()/255f, 1f);
-            g.setColor(c);
-            int x = Gdx.input.getX();
-            int y = Gdx.input.getY();
-            g.fillCircle(x, y, 40);
-            me.setX(x);
-            me.setY(y);
-        }
+
         List<Food> food = world.getFood();
         for (int i = 0; i < food.size(); i++) {
             Food f = food.get(i);
