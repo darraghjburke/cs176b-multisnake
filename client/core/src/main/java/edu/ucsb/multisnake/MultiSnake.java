@@ -89,7 +89,7 @@ public class MultiSnake extends BasicGame {
         for(int i = 0; i < otherPlayers.size(); i++) {
             Player pl = otherPlayers.get(i);
             if (pl != null){
-                Color c = new Color(pl.getR()/255f, pl.getG()/255f, pl.getB()/255f, 1f); // TODO : need to send alpha?
+                Color c = new Color(pl.getR()/255f, pl.getG()/255f, pl.getB()/255f, 1f); 
                 g.setColor(c);
                 int x = pl.getX();
                 int y = pl.getY();
@@ -98,13 +98,25 @@ public class MultiSnake extends BasicGame {
         }
         me = world.getMe();
         if (me != null){
-            Color c = new Color(me.getR()/255f, me.getG()/255f, me.getB()/255f, 1f); // TODO : need to send alpha?
+            Color c = new Color(me.getR()/255f, me.getG()/255f, me.getB()/255f, 1f);
             g.setColor(c);
             int x = Gdx.input.getX();
             int y = Gdx.input.getY();
             g.fillCircle(x, y, 40);
             me.setX(x);
             me.setY(y);
+        }
+        List<Food> food = world.getFood();
+        for (int i = 0; i < food.size(); i++) {
+            Food f = food.get(i);
+            if (f != null) {
+                Color c = new Color(f.getR()/255f, f.getG()/255f, f.getB()/255f, 1f);
+                g.setColor(c);
+                int x = f.getX();
+                int y = f.getY();
+                int size = f.getSize();
+                g.fillRect(x, y, (float)size/2, (float)size/2);
+            }
         }
     }
 }

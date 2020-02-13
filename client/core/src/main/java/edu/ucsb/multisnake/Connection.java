@@ -101,13 +101,19 @@ public class Connection extends Thread {
                 // add other player to world
                 if (id != world.getMe().getId()) {
                     Player p = world.getPlayerWithId(id);
-                    if (p == null)    // player not in world
-                        world.addPlayer(new Player(id, x, y, r, g, b));
-                    else {            // update position for other players
+                    // player not in world
+                    if (p == null) {
+                        world.addPlayer(new Player(id, x, y, r, g, b));        
+                    // update position for other players
+                    } else {            
                         p.setX(x);
                         p.setY(y);
                     }
                 }
+                break;
+
+            case ServerPacketType.BCAST_FOOD:
+                // TODO: add food to food list
                 break;
           }
         }
