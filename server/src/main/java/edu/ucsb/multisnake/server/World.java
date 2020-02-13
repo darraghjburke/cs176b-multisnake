@@ -5,6 +5,8 @@ import java.util.List;
 import java.lang.Math;
 import java.util.Random;
 import java.awt.Color;
+import edu.ucsb.multisnake.server.Utils.IntPair;
+
 
 public class World extends Thread{
     private List<Player> players;
@@ -84,14 +86,20 @@ public class World extends Thread{
     }
 
     public void run() {
+        final int UPDATETIME = 60;
+        final int FOODAMT = 10;
         long lastLoopTime = System.currentTimeMillis();
         while (true) {
             long now = System.currentTimeMillis();
             long updateLength = now - lastLoopTime;
-            if (updateLength >= 100) {
+            if (updateLength >= UPDATETIME) {
                 lastLoopTime = now;
+                while(food.size() < FOODAMT) {
+                    spawnFood();
+                }
                 for(int i = 0; i < players.size(); i++) {
                     players.get(i).getConnection().broadcast();
+                    players.get(i).getConnection().broadcastFood();
                 }
                 // printWorld();
             }
@@ -108,4 +116,7 @@ public class World extends Thread{
         return this.players;
     }
     
+    public List<Food> getFood() {
+        return this.food;
+    }
 }

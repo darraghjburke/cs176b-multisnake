@@ -1,27 +1,24 @@
 package edu.ucsb.multisnake.server;
+import edu.ucsb.multisnake.server.Utils.IntPair;
+
 
 public class Food {
-    private int x, y;
+    private IntPair position;
     private int r, g, b;
     private int size;
 
     public Food(int x, int y, int size, int r, int g, int b) {
-        this.x = x;
-        this.y = y;
+        this.position = new IntPair(x, y);
         this.size = size;
         this.r = r;
         this.g = g;
         this.b = b;
     }
 
-    public int getX() {
-        return this.x;
+    public IntPair getPosition() {
+        return position;
     }
-
-    public int getY() {
-        return this.y;
-    }
-
+    
     public int getSize() {
         return this.size;
     }
@@ -36,14 +33,6 @@ public class Food {
 
     public int getB() {
         return this.b;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 
     public void setSize(int size) {

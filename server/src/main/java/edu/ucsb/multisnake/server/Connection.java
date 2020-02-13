@@ -4,6 +4,11 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.ucsb.multisnake.server.Utils.IntPair;
+
 
 import edu.ucsb.multisnake.server.Packet.ClientPacketType;
 import edu.ucsb.multisnake.server.Packet.ServerPacketType;
@@ -43,18 +48,19 @@ public class Connection extends Thread {
                         p.putInt(player.getR());
                         p.putInt(player.getG());
                         p.putInt(player.getB());
-                        p.putInt(player.getX());
-                        p.putInt(player.getY());
+                        p.putInt(player.getHead().getX());
+                        p.putInt(player.getHead().getY());
                         p.send(output);
                     break;
                     case ClientPacketType.MOVE:
                         int seqNumber = bb.getInt();
-                        int x = bb.getInt();
-                        int y = bb.getInt();
-                        double distance = Math.sqrt( Math.pow(x - player.getX(), 2) + Math.pow(y - player.getY(),2));
-                        player.setX(x);
-                        player.setY(y);
-                        System.out.printf("[MOVE] SeqNumber: %d x: %d y: %d \n", seqNumber, x, y);
+                        int currLength = bb.getInt();
+                        List<IntPair> positions = new ArrayList<IntPair>();
+                        for (int i = 0; i < currLength; i++) {
+                            positions.add(new IntPair(bb.getInt(), bb.getInt()));
+                        }
+                        player.setPositions(positions);
+                        // System.out.printf("[MOVE] SeqNumber: %d x: %d y: %d \n", seqNumber, x, y);
                     // TODO : update player position
                     break;
                     case ClientPacketType.QUIT:
@@ -74,21 +80,44 @@ public class Connection extends Thread {
 
     public void broadcast() {
         if (!isConnected) return;
+        Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, 8 + (24*world.getPlayers().size()));
+        p.putInt(0);
         for(int i = 0; i < world.getPlayers().size(); i++) {
             Player pl = world.getPlayers().get(i);
-            Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, 32);
-            p.putInt(0);
             p.putInt(pl.getId());
             p.putInt(pl.getR());
             p.putInt(pl.getG());
             p.putInt(pl.getB());
-            p.putInt(pl.getX());
-            p.putInt(pl.getY());
-            boolean sent = p.send(output);
-            if (!sent) {
-                disconnect();
-                return;
+            p.putInt(pl.getTargetLength());
+            p.putInt(pl.getPosition().size());
+            for(IntPair position : pl.getPosition()) {
+                p.putInt(position.getX());
+                p.putInt(position.getY());
             }
+        }
+        boolean sent = p.send(output);
+        if (!sent) {
+            disconnect();
+            return;
+        }
+    }
+
+    public void broadcastFood() {
+        if(!isConnected) return;
+        Packet p = new Packet(ServerPacketType.BCAST_FOOD, 6*world.getFood().size()+4);
+        for(int i = 0; i < world.getFood().size(); i++) {
+            Food f = world.getFood().get(i);
+            p.putInt(f.getSize());
+            p.putInt(f.getR());
+            p.putInt(f.getG());
+            p.putInt(f.getB());
+            p.putInt(f.getPosition().getX());
+            p.putInt(f.getPosition().getY());
+        }
+        boolean sent = p.send(output);
+        if (!sent) {
+            disconnect();
+            return;
         }
     }
 

@@ -1,40 +1,29 @@
 package edu.ucsb.multisnake.server;
 
-public class Player {
-    private int id;
-    private int x, y;
-    private int r, b, g;
-    private Connection conn;
+import java.util.ArrayList;
+import java.util.List;
+import edu.ucsb.multisnake.server.Utils.IntPair;
 
-    public Player(int id, int x, int y, int r, int g, int b) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.r = r;
-        this.g = g;
-        this.b = b;
-    }
+
+public class Player {
+  private int id;
+  private int r, b, g;
+  private int targetLength;
+  private List<IntPair> positions;
+  private Connection conn;
+
+  public Player(int id, int x, int y, int r, int g, int b) {
+      this.id = id;
+      this.positions = new ArrayList<IntPair>();
+      this.positions.add(new IntPair(x, y));
+      this.r = r;
+      this.g = g;
+      this.b = b;
+      this.targetLength = 1;
+  }
 
     public int getId() {
         return this.id;
-    }
-
-    public int getX()
-    {
-		return this.x;
-	}
-    
-    public int getY() {
-        return this.y;
-    }
-
-    public void setX(int x)
-    {
-		this.x = x;
-    }
-    
-    public void setY(int y) {
-        this.y = y;
     }
 
     public int getR()
@@ -52,6 +41,14 @@ public class Player {
 		return this.b;
     }
     
+    public int getTargetLength() {
+      return this.targetLength;
+    }
+
+    public List<IntPair> getPosition() {
+      return positions;
+    }
+
     public void setColor(int r, int g, int b)
     {
         this.r = r;
@@ -60,7 +57,19 @@ public class Player {
     }
     
     public String toString() {
-        return id + "," + x + "," + y + "," + r + "," + g + "," + b;
+        return id + "," + positions.toString() + "," + r + "," + g + "," + b;
+    }
+
+    public void setPositions(List<IntPair> pos) {
+      positions = pos;
+    }
+  
+    public IntPair getHead() {
+      return positions.get(0);
+    }
+
+    public void grow(int amt) {
+      targetLength+=amt;
     }
 
     public void setConnection(Connection c) {
