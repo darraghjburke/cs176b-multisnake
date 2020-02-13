@@ -80,8 +80,9 @@ public class Connection extends Thread {
 
     public void broadcast() {
         if (!isConnected) return;
-        Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, 8 + (24*world.getPlayers().size()));
+        Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, 12 + (24*world.getPlayers().size()));
         p.putInt(0);
+        p.putInt(world.getPlayers().size());
         for(int i = 0; i < world.getPlayers().size(); i++) {
             Player pl = world.getPlayers().get(i);
             p.putInt(pl.getId());
