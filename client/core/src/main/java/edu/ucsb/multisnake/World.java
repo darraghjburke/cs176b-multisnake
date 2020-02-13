@@ -4,36 +4,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class World extends Thread {
-    private List<Player> otherPlayers;
+    private List<Player> Players;
     private int numOfPlayers = 0;
     private List<Food> food;
     private int radius = 400;
     private Player me;
 
     public World() {
-        otherPlayers = new ArrayList<Player>();
+        Players = new ArrayList<Player>();
         food = new ArrayList<Food>();
         me = null;
         // run();
     }
 
     public void addPlayer(Player p) {
-        otherPlayers.add(p);
+        Players.add(p);
         numOfPlayers++;
     }
 
     public void deletePlayerWithId(int id) {
-        for (int i = 0; i < otherPlayers.size(); i++) {
-            if (otherPlayers.get(i).getId() == id) {
-                otherPlayers.remove(i);
+        for (int i = 0; i < Players.size(); i++) {
+            if (Players.get(i).getId() == id) {
+                Players.remove(i);
                 break;
             }
         }
     }
 
     public Player getPlayerWithId(int id) {
-        for (int i = 0; i < otherPlayers.size(); i++) {
-            Player pl = otherPlayers.get(i);
+        for (int i = 0; i < Players.size(); i++) {
+            Player pl = Players.get(i);
             if (pl.getId()==id) {
                 return pl;
             }
@@ -41,12 +41,13 @@ public class World extends Thread {
         return null;
     }
 
+    /*
     public void printWorld() {
         for (int i = 0; i < otherPlayers.size(); i++) {
             System.out.println(otherPlayers.get(i).toString());
         }
         System.out.println(me.toString());
-    }
+    }*/
 
     public void run() {
         long lastLoopTime = System.currentTimeMillis();
@@ -77,7 +78,7 @@ public class World extends Thread {
     }
 
     public List<Player> getPlayers() {
-        return this.otherPlayers;
+        return this.Players;
     }
 
     public List<Food> getFood() {

@@ -4,11 +4,14 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.EllipseShapeBuilder;
 
 import edu.ucsb.multisnake.Packet.ClientPacketType;
 import edu.ucsb.multisnake.Packet.ServerPacketType;
+import edu.ucsb.multisnake.Utils.IntPair;
 
 public class Connection extends Thread {
     public BufferedInputStream input;
@@ -51,10 +54,14 @@ public class Connection extends Thread {
     public void send_location() {
         if (!isConnected)
             return;
-        Packet p = new Packet(ClientPacketType.MOVE, 16);
+        int length = player.getLength();
+        Packet p = new Packet(ClientPacketType.MOVE, (2+2*length)*4);
         p.putInt(0); // TODO : need to generate and reuse seqNumber
-        p.putInt(this.player.getX());
-        p.putInt(this.player.getY());
+        p.putInt(length);
+        for (int j = 0; j < length; j++) {
+            p.putInt(this.player.getPositions().get(j).getX());
+            p.putInt(this.player.getPositions().get(j).getY());
+        }
         boolean sent = p.send(output);
         if (!sent) {
             System.out.println("Player cannot send location");
@@ -76,7 +83,7 @@ public class Connection extends Thread {
     public void processPacket(ByteBuffer bb) {
         while(bb.hasRemaining()) {
           int packetType = bb.getInt();
-          int seqNumber,id,r,g,b,x,y;
+          int seqNumber,numPlayers,id,r,g,b,x,y,target_length, current_length;
           switch (packetType) {
             case ServerPacketType.ASSIGN_ID:
                 id = bb.getInt();
@@ -90,26 +97,31 @@ public class Connection extends Thread {
   
             case ServerPacketType.BCAST_PLAYERS:
                 seqNumber = bb.getInt();
-                id = bb.getInt();
-                r = bb.getInt();
-                g = bb.getInt();
-                b = bb.getInt();
-                x = bb.getInt();
-                y = bb.getInt();
-                System.out.printf("[BCAST] SeqNumber: %d ID: %d x: %d y: %d r: %d g: %d b: %d \n", seqNumber, id, x, y, r, g, b);
-                
-                // add other player to world
-                if (id != world.getMe().getId()) {
-                    Player p = world.getPlayerWithId(id);
-                    // player not in world
-                    if (p == null) {
-                        world.addPlayer(new Player(id, x, y, r, g, b));        
+                numPlayers = bb.getInt();
+                for (int j=0; j<numPlayers; j++) {
+                    id = bb.getInt();
+                    r = bb.getInt();
+                    g = bb.getInt();
+                    b = bb.getInt();
+                    target_length = bb.getInt();
+                    current_length = bb.getInt();
+                    List<IntPair> positions = new ArrayList<IntPair>();
+                    if (world.getPlayerWithId(id) == null) {
+                        world.addPlayer(new Player(id, r, g, b));        
                     // update position for other players
-                    } else {            
-                        p.setX(x);
-                        p.setY(y);
+                    }
+                    for (int i = 0; i < current_length; i++){
+                        x = bb.getInt();
+                        y = bb.getInt();
+                        IntPair p = new IntPair(x,y);
+                        positions.add(p);
+                    }
+                    if (id != world.getMe().getId()){
+                        Player p = world.getPlayerWithId(id);
+                        p.setPositions(positions);
                     }
                 }
+                // System.out.printf("[BCAST] SeqNumber: %d ID: %d x: %d y: %d r: %d g: %d b: %d \n", seqNumber, id, x, y, r, g, b);
                 break;
 
             case ServerPacketType.BCAST_FOOD:
