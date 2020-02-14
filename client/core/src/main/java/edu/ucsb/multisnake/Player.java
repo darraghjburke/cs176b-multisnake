@@ -117,4 +117,15 @@ public class Player {
         this.isMe = isMe;
     }
 
+    public void moveTowards(IntPair target) {
+        double angle = getHead().angleTo(target); // compute the angle to that position
+        double dist = IntPair.shortAngleDist(direction, angle); // figure out whether it's faster to rotate clockwise or counter clockwise to match that angle
+        double change = Math.min(getTurnSpeed(), Math.abs(dist)); // limit our rotation to our max turn speed
+        if (dist < 0) change *= -1;
+        if (getHead().distanceTo(target) > MINIMUM_DISTANCE) {
+            direction = direction + change; // update our direction
+        }
+        move(getHead().moveDirection(direction, getSpeed())); // calculate our new position based on our direction and speed
+    }
+
 }

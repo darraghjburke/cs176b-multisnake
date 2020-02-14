@@ -27,5 +27,12 @@ public class Utils {
             int newY = (int) Math.floor(y + Math.sin(direction) * distance);
             return new IntPair(newX, newY);
         }
+
+        /* This prob shouldn't be in here but lol w/e */
+        public static double shortAngleDist(double a0,double a1) {
+            double max = Math.PI*2;
+            double da = (a1 - a0) % max;
+            return 2*da % max - da;
+        }
     }
 }
