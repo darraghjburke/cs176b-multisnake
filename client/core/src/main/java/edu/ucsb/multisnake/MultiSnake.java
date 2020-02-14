@@ -56,6 +56,7 @@ public class MultiSnake extends BasicGame {
                         System.out.printf("[ASSIGN_ID] ID: %d x: %d y: %d r: %d g: %d b: %d \n", id, x, y, r, g, b);
                         me = new Player(id, r, g, b);
                         me.addPositions(new IntPair(x,y));
+                        me.setMe(true);
                         world.setMe(me);
                         Connection c = new Connection(socket, me, world);
                         me.setConnection(c);
@@ -108,6 +109,19 @@ public class MultiSnake extends BasicGame {
     public void interpolate(float alpha) {
     }
     
+    private void drawPlayer(Player pl, Graphics g) {
+        Color c = new Color(pl.getR()/255f, pl.getG()/255f, pl.getB()/255f, 1f);
+        g.setColor(c);
+        /* Extremely hacky fix because we kinda messed up player management! */
+        List<IntPair> positions = pl.getPositions();
+        if ( me!=null && pl.getId() == me.getId() ) {
+            positions = me.getPositions();
+        }
+        for (IntPair pos: positions) {
+            g.fillCircle(pos.getX(), pos.getY(), 40);
+        }
+    }
+
     @Override
     public void render(Graphics g) {
         g.setColor(Color.DARK_GRAY);
@@ -116,34 +130,16 @@ public class MultiSnake extends BasicGame {
         g.fillCircle(width / 2 , height / 2, world.getRadius());
         for(Player pl: world.getPlayers()) {
             if (pl != null){
-                if ( me!=null && pl.getId() == me.getId() ) {
-                    Color c = new Color(me.getR()/255f, me.getG()/255f, me.getB()/255f, 1f);
-                    g.setColor(c);
-                    for (int j = 0; j < me.getPositions().size(); j++) {
-                        int x = me.getPositions().get(j).getX();
-                        int y = me.getPositions().get(j).getY();
-                        g.fillCircle(x, y, 40);
-                    }
-                } else {
-                    Color c = new Color(pl.getR()/255f, pl.getG()/255f, pl.getB()/255f, 1f); 
-                    g.setColor(c);
-                    for (int j = 0; j < pl.getPositions().size(); j++) {
-                        int x = pl.getPositions().get(j).getX();
-                        int y = pl.getPositions().get(j).getY();
-                        g.fillCircle(x, y, 40);
-                    }
-                }
+                drawPlayer(pl, g);
             }
         }
 
-        List<Food> food = world.getFood();
-        for (int i = 0; i < food.size(); i++) {
-            Food f = food.get(i);
+        for (Food f: world.getFood()) {
             if (f != null) {
                 Color c = new Color(f.getR()/255f, f.getG()/255f, f.getB()/255f, 1f);
                 g.setColor(c);
-                int x = f.getX();
-                int y = f.getY();
+                int x = f.getPosition().getX();
+                int y = f.getPosition().getY();
                 int size = f.getSize();
                 g.fillRect(x, y, (float)size/2, (float)size/2);
             }

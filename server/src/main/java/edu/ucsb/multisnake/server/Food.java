@@ -34,20 +34,4 @@ public class Food {
     public int getB() {
         return this.b;
     }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public void setR(int r) {
-        this.r = r;
-    }
-
-    public void setG(int g) {
-        this.g = g;
-    }
-
-    public void setB(int b) {
-        this.b = b;
-    }
 }

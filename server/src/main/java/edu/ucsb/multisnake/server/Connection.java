@@ -87,15 +87,14 @@ public class Connection extends Thread {
         Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, packetLength);
         p.putInt(0);
         p.putInt(world.getPlayers().size());
-        for(int i = 0; i < world.getPlayers().size(); i++) {
-            Player pl = world.getPlayers().get(i);
-            p.putInt(pl.getId());
-            p.putInt(pl.getR());
-            p.putInt(pl.getG());
-            p.putInt(pl.getB());
-            p.putInt(pl.getTargetLength());
-            p.putInt(pl.getPositions().size());
-            for(IntPair position : pl.getPositions()) {
+        for(Player player: world.getPlayers()) {
+            p.putInt(player.getId());
+            p.putInt(player.getR());
+            p.putInt(player.getG());
+            p.putInt(player.getB());
+            p.putInt(player.getTargetLength());
+            p.putInt(player.getPositions().size());
+            for(IntPair position : player.getPositions()) {
                 p.putInt(position.getX());
                 p.putInt(position.getY());
             }
@@ -110,14 +109,13 @@ public class Connection extends Thread {
     public void broadcastFood() {
         if(!isConnected) return;
         Packet p = new Packet(ServerPacketType.BCAST_FOOD, 24*world.getFood().size()+4);
-        for(int i = 0; i < world.getFood().size(); i++) {
-            Food f = world.getFood().get(i);
-            p.putInt(f.getSize());
-            p.putInt(f.getR());
-            p.putInt(f.getG());
-            p.putInt(f.getB());
-            p.putInt(f.getPosition().getX());
-            p.putInt(f.getPosition().getY());
+        for(Food food: world.getFood()) {
+            p.putInt(food.getSize());
+            p.putInt(food.getR());
+            p.putInt(food.getG());
+            p.putInt(food.getB());
+            p.putInt(food.getPosition().getX());
+            p.putInt(food.getPosition().getY());
         }
         boolean sent = p.send(output);
         if (!sent) {

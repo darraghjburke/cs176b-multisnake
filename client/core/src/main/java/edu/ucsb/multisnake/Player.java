@@ -1,6 +1,7 @@
 package edu.ucsb.multisnake;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import edu.ucsb.multisnake.Utils.IntPair;
 
@@ -11,6 +12,7 @@ public class Player {
     private List<IntPair> positions;
     private Connection conn;
     private double direction;
+    private boolean isMe;
 
     public Player(int id, int r, int g, int b) {
         this.id = id;
@@ -19,6 +21,7 @@ public class Player {
         this.g = g;
         this.b = b;
         this.length = 1;
+        isMe = false;
     }
 
     public int getId() {
@@ -68,7 +71,7 @@ public class Player {
     }
     
     public List<IntPair> getPositions() {
-        return this.positions;
+        return Collections.synchronizedList(positions);
     }
 
     public IntPair getHead() {
@@ -98,11 +101,19 @@ public class Player {
     }
 
     public double getSpeed() {
-        return 5;
+        return 3;
     }
 
     public double getTurnSpeed() {
         return 0.1;
+    }
+
+    public boolean isMe() {
+        return isMe;
+    }
+
+    public void setMe(boolean isMe) {
+        this.isMe = isMe;
     }
 
 }
