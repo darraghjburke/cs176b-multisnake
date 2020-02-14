@@ -54,13 +54,13 @@ public class Connection extends Thread {
     public void send_location() {
         if (!isConnected)
             return;
-        int length = player.getLength();
-        Packet p = new Packet(ClientPacketType.MOVE, (2+2*length)*4);
+        int length = player.getPositions().size();
+        Packet p = new Packet(ClientPacketType.MOVE, (3+2*length)*4);
         p.putInt(0); // TODO : need to generate and reuse seqNumber
         p.putInt(length);
-        for (int j = 0; j < length; j++) {
-            p.putInt(this.player.getPositions().get(j).getX());
-            p.putInt(this.player.getPositions().get(j).getY());
+        for (IntPair ip: player.getPositions()) {
+            p.putInt(ip.getX());
+            p.putInt(ip.getY());
         }
         boolean sent = p.send(output);
         if (!sent) {

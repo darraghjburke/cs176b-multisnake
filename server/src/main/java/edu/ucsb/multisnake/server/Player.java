@@ -45,7 +45,7 @@ public class Player {
       return this.targetLength;
     }
 
-    public List<IntPair> getPosition() {
+    public List<IntPair> getPositions() {
       return positions;
     }
 

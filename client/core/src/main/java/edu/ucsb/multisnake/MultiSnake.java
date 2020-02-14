@@ -72,9 +72,36 @@ public class MultiSnake extends BasicGame {
         }
       
     }
+
+    private double shortAngleDist(double a0,double a1) {
+        double max = Math.PI*2;
+        double da = (a1 - a0) % max;
+        return 2*da % max - da;
+    }
+    
+    /*private double angleLerp(a0,a1,t) {
+        return a0 + shortAngleDist(a0,a1)*t;
+    }*/
+    
     
     @Override
     public void update(float delta) {
+        Player me = world.getMe();
+        int targetX = Gdx.input.getX();
+        int targetY = Gdx.input.getY();
+        int headX = me.getHead().getX();
+        int headY = me.getHead().getY();
+        double angle = Math.atan2(targetY - headY, targetX - headX);
+        double currentDirection = me.getDirection();
+        double dist = shortAngleDist(currentDirection, angle);
+        double change = Math.min(me.getTurnSpeed(), Math.abs(dist));
+        if (dist < 0) change *= -1;
+        me.setDirection(currentDirection + change);
+        int newX = (int) Math.floor(headX + Math.cos(me.getDirection()) * me.getSpeed());
+        int newY = (int) Math.floor(headY + Math.sin(me.getDirection()) * me.getSpeed());
+        if (me != null) {
+            me.move(new IntPair(newX, newY));
+        }
     }
     
     @Override
@@ -87,18 +114,12 @@ public class MultiSnake extends BasicGame {
         g.fillRect(0,0,world.getRadius()*2,world.getRadius()*2);
         g.setColor(Color.WHITE);
         g.fillCircle(width / 2 , height / 2, world.getRadius());
-        List<Player> Players = world.getPlayers();
-        for(int i = 0; i < Players.size(); i++) {
-            Player pl = Players.get(i);
+        for(Player pl: world.getPlayers()) {
             if (pl != null){
                 if ( me!=null && pl.getId() == me.getId() ) {
                     Color c = new Color(me.getR()/255f, me.getG()/255f, me.getB()/255f, 1f);
                     g.setColor(c);
-                    int new_x = Gdx.input.getX();
-                    int new_y = Gdx.input.getY();
-                    IntPair p = new IntPair(new_x,new_y);
-                    me.move(p);
-                    for (int j = 0; j < me.getLength(); j++) {
+                    for (int j = 0; j < me.getPositions().size(); j++) {
                         int x = me.getPositions().get(j).getX();
                         int y = me.getPositions().get(j).getY();
                         g.fillCircle(x, y, 40);
@@ -106,7 +127,7 @@ public class MultiSnake extends BasicGame {
                 } else {
                     Color c = new Color(pl.getR()/255f, pl.getG()/255f, pl.getB()/255f, 1f); 
                     g.setColor(c);
-                    for (int j = 0; j < pl.getLength(); j++) {
+                    for (int j = 0; j < pl.getPositions().size(); j++) {
                         int x = pl.getPositions().get(j).getX();
                         int y = pl.getPositions().get(j).getY();
                         g.fillCircle(x, y, 40);

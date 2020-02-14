@@ -10,6 +10,7 @@ public class Player {
     private int length;
     private List<IntPair> positions;
     private Connection conn;
+    private double direction;
 
     public Player(int id, int r, int g, int b) {
         this.id = id;
@@ -34,6 +35,14 @@ public class Player {
 
     public void setLength(int length) {
         this.length = length;
+    }
+
+    public void setDirection(double dir) {
+        direction = dir;
+    }
+
+    public double getDirection() {
+        return direction;
     }
 
     public int getR()
@@ -62,6 +71,10 @@ public class Player {
         return this.positions;
     }
 
+    public IntPair getHead() {
+        return this.positions.get(0);
+    }
+
     public void addPositions(IntPair p) {
         this.positions.add(p);
     }
@@ -72,7 +85,8 @@ public class Player {
 
     // delete the last position and append to the head
     public void move(IntPair p) { 
-        this.positions.remove(p);
+        this.positions.remove(this.positions.size()-1);
+        this.positions.add(p);
     }
 
     public void setConnection(Connection c) {
@@ -81,6 +95,14 @@ public class Player {
 
     public Connection getConnection() {
         return this.conn;
+    }
+
+    public double getSpeed() {
+        return 5;
+    }
+
+    public double getTurnSpeed() {
+        return 0.1;
     }
 
 }

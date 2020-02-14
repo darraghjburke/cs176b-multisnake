@@ -80,7 +80,11 @@ public class Connection extends Thread {
 
     public void broadcast() {
         if (!isConnected) return;
-        Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, 12 + (24*world.getPlayers().size()));
+        int packetLength = 12;
+        for(Player p: world.getPlayers()) {
+            packetLength += 24 + p.getPositions().size() * 8;
+        }
+        Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, packetLength);
         p.putInt(0);
         p.putInt(world.getPlayers().size());
         for(int i = 0; i < world.getPlayers().size(); i++) {
@@ -90,8 +94,8 @@ public class Connection extends Thread {
             p.putInt(pl.getG());
             p.putInt(pl.getB());
             p.putInt(pl.getTargetLength());
-            p.putInt(pl.getPosition().size());
-            for(IntPair position : pl.getPosition()) {
+            p.putInt(pl.getPositions().size());
+            for(IntPair position : pl.getPositions()) {
                 p.putInt(position.getX());
                 p.putInt(position.getY());
             }
@@ -105,7 +109,7 @@ public class Connection extends Thread {
 
     public void broadcastFood() {
         if(!isConnected) return;
-        Packet p = new Packet(ServerPacketType.BCAST_FOOD, 6*world.getFood().size()+4);
+        Packet p = new Packet(ServerPacketType.BCAST_FOOD, 24*world.getFood().size()+4);
         for(int i = 0; i < world.getFood().size(); i++) {
             Food f = world.getFood().get(i);
             p.putInt(f.getSize());
