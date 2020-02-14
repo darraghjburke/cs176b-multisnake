@@ -1,5 +1,9 @@
 package edu.ucsb.multisnake;
 
+import com.badlogic.gdx.graphics.Color;
+
+import org.mini2Dx.core.graphics.Graphics;
+
 import edu.ucsb.multisnake.Utils.IntPair;
 
 public class Food {
@@ -33,5 +37,14 @@ public class Food {
 
     public int getB() {
         return this.b;
+    }
+
+    public void render(Graphics gfx) {
+        Color c = new Color(r/255f, g/255f, b/255f, 1f);
+        gfx.setColor(c);
+        int x = position.getX();
+        int y = position.getY();
+        int size = getSize();
+        gfx.fillRect(x, y, (float)size/2, (float)size/2);
     }
 }

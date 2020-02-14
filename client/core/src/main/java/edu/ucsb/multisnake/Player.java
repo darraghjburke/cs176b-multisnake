@@ -5,13 +5,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.badlogic.gdx.graphics.Color;
+
+import org.mini2Dx.core.graphics.Graphics;
+
 import edu.ucsb.multisnake.Utils.IntPair;
 
 public class Player {
     public static final int MINIMUM_DISTANCE = 10; // how close we can get to our goal before we stop rotating
     private int id;
     private int r, b, g;
-    private int length;
+    private int targetLength;
     private List<IntPair> positions;
     private Connection conn;
     private double direction;
@@ -23,7 +27,7 @@ public class Player {
         this.r = r;
         this.g = g;
         this.b = b;
-        this.length = 1;
+        this.targetLength = 1;
         isMe = false;
     }
 
@@ -35,12 +39,12 @@ public class Player {
         this.id = id;
     }
 
-    public int getLength() {
-        return this.length;
+    public int getTargetLength() {
+        return this.targetLength;
     }
 
-    public void setLength(int length) {
-        this.length = length;
+    public void setTargetLength(int length) {
+        this.targetLength = length;
     }
 
     public void setDirection(double dir) {
@@ -128,6 +132,14 @@ public class Player {
             direction = direction + change; // update our direction
         }
         move(getHead().moveDirection(direction, getSpeed())); // calculate our new position based on our direction and speed
+    }
+
+    public void render(Graphics gfx) {
+        Color c = new Color(r/255f, g/255f, b/255f, 1f);
+        gfx.setColor(c);
+        for (IntPair pos: positions) {
+            gfx.fillCircle(pos.getX(), pos.getY(), 40);
+        }
     }
 
 }

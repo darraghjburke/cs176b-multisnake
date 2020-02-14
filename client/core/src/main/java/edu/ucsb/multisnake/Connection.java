@@ -139,6 +139,7 @@ public class Connection extends Thread {
                         positions.add(p);
                     }
                     Player p = world.getPlayerWithId(id);
+                    p.setTargetLength(target_length);
                     if (!p.isMe()){
                         p.setPositions(positions);
                     }

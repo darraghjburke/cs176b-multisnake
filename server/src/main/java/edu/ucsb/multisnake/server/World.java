@@ -105,8 +105,10 @@ public class World extends Thread{
                     spawnFood();
                 }
                 for(Player player : getPlayers()) {
-                    player.getConnection().broadcast();
-                    player.getConnection().broadcastFood();
+                    if (player.getConnection() != null) {
+                        player.getConnection().broadcast();
+                        player.getConnection().broadcastFood();
+                    }
                 }
                 // printWorld();
             }
