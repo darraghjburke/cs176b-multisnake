@@ -1,42 +1,47 @@
 package edu.ucsb.multisnake;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class World extends Thread {
-    private List<Player> Players;
+    private List<Player> players;
     private int numOfPlayers = 0;
     private List<Food> food;
     private int radius = 400;
-    private Player me;
 
     public World() {
-        Players = new ArrayList<Player>();
+        players = new ArrayList<Player>();
         food = new ArrayList<Food>();
-        me = null;
         // run();
     }
 
     public void addPlayer(Player p) {
-        Players.add(p);
+        players.add(p);
         numOfPlayers++;
     }
 
     public void deletePlayerWithId(int id) {
-        for (int i = 0; i < Players.size(); i++) {
-            if (Players.get(i).getId() == id) {
-                Players.remove(i);
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getId() == id) {
+                players.remove(i);
                 break;
             }
         }
     }
 
     public Player getPlayerWithId(int id) {
-        for (int i = 0; i < Players.size(); i++) {
-            Player pl = Players.get(i);
+        for (Player pl: getPlayers()) {
             if (pl.getId()==id) {
                 return pl;
             }
+        }
+        return null;
+    }
+
+    public Player findMe() {
+        for (Player pl: getPlayers()) {
+            if (pl.isMe()) return pl;
         }
         return null;
     }
@@ -54,9 +59,9 @@ public class World extends Thread {
         while (true) {
             long now = System.currentTimeMillis();
             long updateLength = now - lastLoopTime;
-            if (updateLength >= 17 && me != null && me.getConnection() != null) {
+            if (updateLength >= 17 && MultiSnake.getConnection() != null) {
                 lastLoopTime = now;
-                me.getConnection().send_location();
+                MultiSnake.getConnection().send_location();
             }
         }
     }
@@ -69,16 +74,8 @@ public class World extends Thread {
         this.numOfPlayers = num;
     }
 
-    public Player getMe(){
-        return this.me;
-    }
-
-    public void setMe(Player p){
-        this.me = p;
-    }
-
     public List<Player> getPlayers() {
-        return this.Players;
+        return Collections.synchronizedList(players);
     }
 
     public List<Food> getFood() {

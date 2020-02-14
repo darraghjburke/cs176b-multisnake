@@ -1,8 +1,10 @@
 package edu.ucsb.multisnake.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.awt.Color;
 import edu.ucsb.multisnake.server.Utils.IntPair;
 
@@ -18,7 +20,7 @@ public class World extends Thread{
     private final int UPDATE_TIME = 48;
 
     public World() {
-        players = new ArrayList<Player>();
+        players = new CopyOnWriteArrayList<Player>();
         food = new ArrayList<Food>();
         while (food.size() < FOOD_AMOUNT) {
             spawnFood();
@@ -86,7 +88,7 @@ public class World extends Thread{
 
     public void printWorld() {
         System.out.println("PLAYERS");
-        for (Player player: players) {
+        for (Player player: getPlayers()) {
             System.out.printf("{%s},", player.toString());
         }
         System.out.printf("/n");
@@ -102,7 +104,7 @@ public class World extends Thread{
                 if (food.size() < FOOD_AMOUNT) {
                     spawnFood();
                 }
-                for(Player player : players) {
+                for(Player player : getPlayers()) {
                     player.getConnection().broadcast();
                     player.getConnection().broadcastFood();
                 }
@@ -118,7 +120,7 @@ public class World extends Thread{
     }
 
     public List<Player> getPlayers() {
-        return this.players;
+        return players;
     }
     
     public List<Food> getFood() {

@@ -17,67 +17,32 @@ import java.io.*;
 public class MultiSnake extends BasicGame {
     public static final String GAME_IDENTIFIER = "edu.ucsb.multisnake";
 
-    BufferedInputStream input;
-    BufferedOutputStream output;
-    int bytesRead;
-    Socket socket;
-    Player me;
     World world;
     byte buffer[];
-        
-	@Override
+    private static Connection conn;
+    
+
+    @Override
     public void initialise() {
 
         world = new World();
         world.start();
         String hostname = "localhost";
         int port = 8000;
-        buffer = new byte[4096];
-        
         try {
-            socket = new Socket(hostname, port);
-            input = new BufferedInputStream(socket.getInputStream());
-            output = new BufferedOutputStream(socket.getOutputStream());
-            Packet p = new Packet(ClientPacketType.LOGIN, 4);
-            p.send(output);
-            if((bytesRead = input.read(buffer)) > 0) {
-                System.out.println("Bytes read: " + bytesRead);
-                ByteBuffer bb = ByteBuffer.wrap(buffer);
-                int packetType = bb.getInt();
-                int id,r,g,b,x,y;
-                switch (packetType) {
-                    case ServerPacketType.ASSIGN_ID:
-                        id = bb.getInt();
-                        r = bb.getInt();
-                        g = bb.getInt();
-                        b = bb.getInt();
-                        x = bb.getInt();
-                        y = bb.getInt();
-                        System.out.printf("[ASSIGN_ID] ID: %d x: %d y: %d r: %d g: %d b: %d \n", id, x, y, r, g, b);
-                        me = new Player(id, r, g, b);
-                        me.addPositions(new IntPair(x,y));
-                        me.setMe(true);
-                        world.setMe(me);
-                        Connection c = new Connection(socket, me, world);
-                        me.setConnection(c);
-                        c.start();
-                        break;
-                    default:
-                        System.out.println("Server did not send back ASSIGN_ID packet");
-                }    
-            }
-        } catch (UnknownHostException ex) {
-            System.out.println("Server not found: " + ex.getMessage());
-        } catch (IOException ex) {
-            System.out.println("I/O error: " + ex.getMessage());
+            conn = new Connection(hostname, port, world);
+            conn.start();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
       
     }
     
     @Override
     public void update(float delta) {
-        Player me = world.getMe();
+        Player me = world.findMe();
         if (me != null) me.moveTowards(new IntPair(Gdx.input.getX(), Gdx.input.getY()));
+        if (conn == null) System.out.println("CONNETION IS NULL");
     }
     
     @Override
@@ -89,9 +54,6 @@ public class MultiSnake extends BasicGame {
         g.setColor(c);
         /* Extremely hacky fix because we kinda messed up player management! */
         List<IntPair> positions = pl.getPositions();
-        if ( me!=null && pl.getId() == me.getId() ) {
-            positions = me.getPositions();
-        }
         for (IntPair pos: positions) {
             g.fillCircle(pos.getX(), pos.getY(), 40);
         }
@@ -119,5 +81,9 @@ public class MultiSnake extends BasicGame {
                 g.fillRect(x, y, (float)size/2, (float)size/2);
             }
         }
+    }
+
+    public static Connection getConnection() {
+        return conn;
     }
 }

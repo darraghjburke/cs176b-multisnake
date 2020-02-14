@@ -3,6 +3,8 @@ package edu.ucsb.multisnake;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import edu.ucsb.multisnake.Utils.IntPair;
 
 public class Player {
@@ -17,7 +19,7 @@ public class Player {
 
     public Player(int id, int r, int g, int b) {
         this.id = id;
-        this.positions = new ArrayList<IntPair>();
+        this.positions = new CopyOnWriteArrayList<IntPair>();
         this.r = r;
         this.g = g;
         this.b = b;
@@ -72,7 +74,7 @@ public class Player {
     }
     
     public List<IntPair> getPositions() {
-        return Collections.synchronizedList(positions);
+        return positions;
     }
 
     public IntPair getHead() {
