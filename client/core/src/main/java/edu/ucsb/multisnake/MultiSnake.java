@@ -88,20 +88,17 @@ public class MultiSnake extends BasicGame {
     @Override
     public void update(float delta) {
         Player me = world.getMe();
-        int targetX = Gdx.input.getX();
-        int targetY = Gdx.input.getY();
-        int headX = me.getHead().getX();
-        int headY = me.getHead().getY();
-        double angle = Math.atan2(targetY - headY, targetX - headX);
-        double currentDirection = me.getDirection();
-        double dist = shortAngleDist(currentDirection, angle);
-        double change = Math.min(me.getTurnSpeed(), Math.abs(dist));
+        IntPair target = new IntPair(Gdx.input.getX(), Gdx.input.getY()); // we're trying to get to the mouse position
+        double angle = me.getHead().angleTo(target); // compute the angle to that position
+        double currentDirection = me.getDirection(); // take our current direction
+        double dist = shortAngleDist(currentDirection, angle); // figure out whether it's faster to rotate clockwise or counter clockwise to match that angle
+        double change = Math.min(me.getTurnSpeed(), Math.abs(dist)); // limit our rotation to our max turn speed
         if (dist < 0) change *= -1;
-        me.setDirection(currentDirection + change);
-        int newX = (int) Math.floor(headX + Math.cos(me.getDirection()) * me.getSpeed());
-        int newY = (int) Math.floor(headY + Math.sin(me.getDirection()) * me.getSpeed());
+        if (me.getHead().distanceTo(target) > Player.MINIMUM_DISTANCE) {
+            me.setDirection(currentDirection + change); // update our direction
+        }
         if (me != null) {
-            me.move(new IntPair(newX, newY));
+            me.move(me.getHead().moveDirection(me.getDirection(), me.getSpeed())); // calculate our new position based on our direction and speed
         }
     }
     

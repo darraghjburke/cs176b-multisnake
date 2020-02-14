@@ -6,6 +6,7 @@ import java.util.List;
 import edu.ucsb.multisnake.Utils.IntPair;
 
 public class Player {
+    public static final int MINIMUM_DISTANCE = 10; // how close we can get to our goal before we stop rotating
     private int id;
     private int r, b, g;
     private int length;
