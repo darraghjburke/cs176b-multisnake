@@ -96,7 +96,7 @@ public class Player {
     // delete the last position and append to the head
     public void move(IntPair p) { 
         this.positions.remove(this.positions.size()-1);
-        this.positions.add(p);
+        this.positions.add(0, p);
     }
 
     public void setConnection(Connection c) {

@@ -14,6 +14,7 @@ public class World extends Thread {
     private List<Player> players;
     private int numOfPlayers = 0;
     private List<Food> food;
+    private int numOfFood = 0;
     private int radius = 400;
     private IntPair center = new IntPair(400,400);
 
@@ -26,6 +27,11 @@ public class World extends Thread {
     public void addPlayer(Player p) {
         players.add(p);
         numOfPlayers++;
+    }
+
+    public void setFood(List<Food> foodList) {
+        food = foodList;
+        numOfFood = foodList.size();
     }
 
     public void deletePlayerWithId(int id) {

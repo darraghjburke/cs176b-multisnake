@@ -14,7 +14,7 @@ public class World extends Thread{
     private int numOfPlayers = 0, numOfFood = 0;
     private List<Food> food;
     private int radius = 400;
-    private IntPair center = new IntPair(200,200);
+    private IntPair center = new IntPair(400,400);
 
     private final int FOOD_AMOUNT = 10;
     private final int UPDATE_TIME = 48;
@@ -68,8 +68,8 @@ public class World extends Thread{
         int g = (rgb >> 8) & 0xFF;
         int b = rgb & 0xFF;
         do {
-            x = rand.nextInt(radius);
-            y = rand.nextInt(radius);
+            x = rand.nextInt(radius*2);
+            y = rand.nextInt(radius*2);
             size = rand.nextInt(20) + 5; // size is random from 5 to 25 (inclusive)
         } while (distanceToCenter(new IntPair(x,y)) > radius);
         Food f = new Food(x, y, size, r, g, b);

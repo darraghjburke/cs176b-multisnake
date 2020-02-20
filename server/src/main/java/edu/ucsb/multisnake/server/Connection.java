@@ -108,7 +108,8 @@ public class Connection extends Thread {
 
     public void broadcastFood() {
         if(!isConnected) return;
-        Packet p = new Packet(ServerPacketType.BCAST_FOOD, 24*world.getFood().size()+4);
+        Packet p = new Packet(ServerPacketType.BCAST_FOOD, 24*world.getFood().size()+8);
+        p.putInt(world.getFood().size());
         for(Food food: world.getFood()) {
             p.putInt(food.getSize());
             p.putInt(food.getR());

@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.EllipseShapeBuilder;
 
 import edu.ucsb.multisnake.Packet.ClientPacketType;
 import edu.ucsb.multisnake.Packet.ServerPacketType;
-import edu.ucsb.multisnake.Utils.IntPair;
+import edu.ucsb.multisnake.Utils.*;
 
 public class Connection extends Thread {
     public BufferedInputStream input;
@@ -22,6 +22,7 @@ public class Connection extends Thread {
     private boolean isConnected;
     private int port;
     private String hostname;
+    Sequence s;
 
     public Connection(String hostname, int port, World world) throws IOException {
         super("Connection");
@@ -33,6 +34,7 @@ public class Connection extends Thread {
             isConnected = true;
             input = new BufferedInputStream(socket.getInputStream());
             output = new BufferedOutputStream(socket.getOutputStream());
+            s = new Sequence();
             System.out.println("Connected to server");
         }
         catch (UnknownHostException ex) {
@@ -64,20 +66,25 @@ public class Connection extends Thread {
     }
 
     public void send_location() {
+        boolean sent = false;
         Player me = world.findMe();
         if (!isConnected || me == null)
             return;
         int length = me.getPositions().size();
         Packet p = new Packet(ClientPacketType.MOVE, (3+2*length)*4);
-        p.putInt(0); // TODO : need to generate and reuse seqNumber
-        p.putInt(length);
-        for (int i = 0; i < length; i++) {
-            IntPair pos = me.getPositions().get(i);
-            p.putInt(pos.getX());
-            p.putInt(pos.getY());
+        int seqNum = s.getNextSeqNum();
+        if (seqNum != -1){
+            p.putInt(seqNum);
+            p.putInt(length);
+            for (int i = 0; i < length; i++) {
+                IntPair pos = me.getPositions().get(i);
+                p.putInt(pos.getX());
+                p.putInt(pos.getY());
+            }
+            sent = p.send(output);
+            System.out.println("sent location!");
+            System.out.flush();
         }
-        boolean sent = p.send(output);
-        System.out.println("sent location!");
         if (!sent) {
             System.out.println("Player cannot send location");
             disconnect();
@@ -98,7 +105,7 @@ public class Connection extends Thread {
     public void processPacket(ByteBuffer bb) {
         while(bb.hasRemaining()) {
           int packetType = bb.getInt();
-          int seqNumber,numPlayers,id,r,g,b,x,y,target_length, current_length;
+          int seqNumber,numFood,numPlayers,id,r,g,b,x,y,target_length,current_length,size;
           switch (packetType) {
             case ServerPacketType.ASSIGN_ID:
                 id = bb.getInt();
@@ -143,12 +150,26 @@ public class Connection extends Thread {
                     if (!p.isMe()){
                         p.setPositions(positions);
                     }
-                    System.out.printf("[BCAST] SeqNumber: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, id, r, g, b, positions.toString());
+                    System.out.printf("[BCAST_PLAYERS] SeqNumber: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, id, r, g, b, positions.toString());
+                    System.out.flush();
                 }
                 break;
 
             case ServerPacketType.BCAST_FOOD:
-                // TODO: add food to food list
+                List<Food> food = new ArrayList<Food>();
+                numFood = bb.getInt();
+                for (int j=0; j<numFood; j++) {
+                    size = bb.getInt();
+                    r = bb.getInt();
+                    g = bb.getInt();
+                    b = bb.getInt();
+                    x = bb.getInt();
+                    y = bb.getInt();
+                    food.add(new Food(x, y, size, r, g, b));
+                    System.out.printf("[BCAST_FOOD] size: %d r: %d g: %d b: %d x: %s, y: %s \n", size, r, g, b, x, y);
+                    System.out.flush();
+                }
+                world.setFood(food);    
                 break;
           }
         }
