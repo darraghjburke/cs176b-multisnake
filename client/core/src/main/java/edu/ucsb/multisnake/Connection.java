@@ -4,29 +4,46 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.rmi.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.EllipseShapeBuilder;
 
 import edu.ucsb.multisnake.Packet.ClientPacketType;
 import edu.ucsb.multisnake.Packet.ServerPacketType;
+import edu.ucsb.multisnake.Utils.*;
 
 public class Connection extends Thread {
     public BufferedInputStream input;
     public BufferedOutputStream output;
     public Socket socket;
     private World world;
-    private Player player;
     private boolean isConnected;
+    private int port;
+    private String hostname;
+    Sequence s;
 
-    public Connection(Socket socket, Player p, World w) throws IOException {
+    public Connection(String hostname, int port, World world) throws IOException {
         super("Connection");
-        System.out.println("New client connected");
-        this.socket = socket;
-        this.player = p;
-        this.world = w;
-        isConnected = true;
-        input = new BufferedInputStream(socket.getInputStream());
-        output = new BufferedOutputStream(socket.getOutputStream());
+        this.hostname = hostname;
+        this.port = port;
+        this.world = world;
+        try {
+            socket = new Socket(hostname, port);
+            isConnected = true;
+            input = new BufferedInputStream(socket.getInputStream());
+            output = new BufferedOutputStream(socket.getOutputStream());
+            s = new Sequence();
+            System.out.println("Connected to server");
+        }
+        catch (UnknownHostException ex) {
+            System.out.println("Server not found: " + ex.getMessage());
+            throw ex;
+        }
+        Packet p = new Packet(ClientPacketType.LOGIN, 4);
+        p.send(output);
+
     }
 
     public void run() {
@@ -49,13 +66,29 @@ public class Connection extends Thread {
     }
 
     public void send_location() {
-        if (!isConnected)
+        boolean sent = false;
+        Player me = world.findMe();
+        if (!isConnected || me == null)
             return;
-        Packet p = new Packet(ClientPacketType.MOVE, 16);
-        p.putInt(0); // TODO : need to generate and reuse seqNumber
-        p.putInt(this.player.getX());
-        p.putInt(this.player.getY());
-        boolean sent = p.send(output);
+        int length = me.getPositions().size();
+        Packet p = new Packet(ClientPacketType.MOVE, (3+2*length)*4);
+
+        int seqNum = s.getNextSeqNum();
+        if (seqNum != -1){
+            p.putInt(seqNum);
+            p.putInt(length);
+            for (int i = 0; i < length; i++) {
+                // added to get rid of out of bounds exception
+                if(me.getPositions().get(i) != null) {
+                    IntPair pos = me.getPositions().get(i);
+                    p.putInt(pos.getX());
+                    p.putInt(pos.getY());
+                }
+            }
+            sent = p.send(output);
+            System.out.println("sent location!");
+            System.out.flush();
+        }
         if (!sent) {
             System.out.println("Player cannot send location");
             disconnect();
@@ -76,7 +109,7 @@ public class Connection extends Thread {
     public void processPacket(ByteBuffer bb) {
         while(bb.hasRemaining()) {
           int packetType = bb.getInt();
-          int seqNumber,id,r,g,b,x,y;
+          int seqNumber,numFood,numPlayers,id,r,g,b,x,y,target_length,current_length,size;
           switch (packetType) {
             case ServerPacketType.ASSIGN_ID:
                 id = bb.getInt();
@@ -86,34 +119,61 @@ public class Connection extends Thread {
                 x = bb.getInt();
                 y = bb.getInt();
                 System.out.printf("[ASSIGN_ID] ID: %d x: %d y: %d r: %d g: %d b: %d \n", id, x, y, r, g, b);
+                Player pl = world.getPlayerWithId(id);
+                if (pl == null) {
+                    pl = new Player(id, r, g, b);
+                    pl.addPositions(new IntPair(x,y));
+                    world.addPlayer(pl);
+                }
+                pl.setMe(true);
                 break;
   
             case ServerPacketType.BCAST_PLAYERS:
                 seqNumber = bb.getInt();
-                id = bb.getInt();
-                r = bb.getInt();
-                g = bb.getInt();
-                b = bb.getInt();
-                x = bb.getInt();
-                y = bb.getInt();
-                System.out.printf("[BCAST] SeqNumber: %d ID: %d x: %d y: %d r: %d g: %d b: %d \n", seqNumber, id, x, y, r, g, b);
-                
-                // add other player to world
-                if (id != world.getMe().getId()) {
-                    Player p = world.getPlayerWithId(id);
-                    // player not in world
-                    if (p == null) {
-                        world.addPlayer(new Player(id, x, y, r, g, b));        
+                numPlayers = bb.getInt();
+                for (int j=0; j<numPlayers; j++) {
+                    id = bb.getInt();
+                    r = bb.getInt();
+                    g = bb.getInt();
+                    b = bb.getInt();
+                    target_length = bb.getInt();
+                    current_length = bb.getInt();
+                    List<IntPair> positions = new ArrayList<IntPair>();
+                    if (world.getPlayerWithId(id) == null) {
+                        world.addPlayer(new Player(id, r, g, b));        
                     // update position for other players
-                    } else {            
-                        p.setX(x);
-                        p.setY(y);
                     }
+                    for (int i = 0; i < current_length; i++){
+                        x = bb.getInt();
+                        y = bb.getInt();
+                        IntPair p = new IntPair(x,y);
+                        positions.add(p);
+                    }
+                    Player p = world.getPlayerWithId(id);
+                    p.setTargetLength(target_length);
+                    if (!p.isMe()){
+                        p.setPositions(positions);
+                    }
+                    System.out.printf("[BCAST_PLAYERS] SeqNumber: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, id, r, g, b, positions.toString());
+                    System.out.flush();
                 }
                 break;
 
             case ServerPacketType.BCAST_FOOD:
-                // TODO: add food to food list
+                List<Food> food = new ArrayList<Food>();
+                numFood = bb.getInt();
+                for (int j=0; j<numFood; j++) {
+                    size = bb.getInt();
+                    r = bb.getInt();
+                    g = bb.getInt();
+                    b = bb.getInt();
+                    x = bb.getInt();
+                    y = bb.getInt();
+                    food.add(new Food(x, y, size, r, g, b));
+                    System.out.printf("[BCAST_FOOD] size: %d r: %d g: %d b: %d x: %s, y: %s \n", size, r, g, b, x, y);
+                    System.out.flush();
+                }
+                world.setFood(food);    
                 break;
           }
         }

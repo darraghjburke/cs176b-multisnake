@@ -2,38 +2,49 @@ package edu.ucsb.multisnake;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.badlogic.gdx.graphics.Color;
+
+import org.mini2Dx.core.graphics.Graphics;
+
+import edu.ucsb.multisnake.Utils.IntPair;
 
 public class World extends Thread {
-    private List<Player> otherPlayers;
+    private List<Player> players;
     private int numOfPlayers = 0;
     private List<Food> food;
+    private int numOfFood = 0;
     private int radius = 400;
-    private Player me;
+    private IntPair center = new IntPair(400,400);
 
     public World() {
-        otherPlayers = new ArrayList<Player>();
+        players = new CopyOnWriteArrayList<Player>();
         food = new ArrayList<Food>();
-        me = null;
         // run();
     }
 
     public void addPlayer(Player p) {
-        otherPlayers.add(p);
+        players.add(p);
         numOfPlayers++;
     }
 
+    public void setFood(List<Food> foodList) {
+        food = foodList;
+        numOfFood = foodList.size();
+    }
+
     public void deletePlayerWithId(int id) {
-        for (int i = 0; i < otherPlayers.size(); i++) {
-            if (otherPlayers.get(i).getId() == id) {
-                otherPlayers.remove(i);
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getId() == id) {
+                players.remove(i);
                 break;
             }
         }
     }
 
     public Player getPlayerWithId(int id) {
-        for (int i = 0; i < otherPlayers.size(); i++) {
-            Player pl = otherPlayers.get(i);
+        for (Player pl: getPlayers()) {
             if (pl.getId()==id) {
                 return pl;
             }
@@ -41,21 +52,31 @@ public class World extends Thread {
         return null;
     }
 
+    public Player findMe() {
+        for (Player pl: getPlayers()) {
+            if (pl.isMe()) return pl;
+        }
+        return null;
+    }
+
+    /*
     public void printWorld() {
         for (int i = 0; i < otherPlayers.size(); i++) {
             System.out.println(otherPlayers.get(i).toString());
         }
         System.out.println(me.toString());
-    }
+    }*/
 
     public void run() {
         long lastLoopTime = System.currentTimeMillis();
+        System.out.println("World loop started");
         while (true) {
             long now = System.currentTimeMillis();
             long updateLength = now - lastLoopTime;
-            if (updateLength >= 17 && me != null && me.getConnection() != null) {
+            if (updateLength >= 17) {
                 lastLoopTime = now;
-                me.getConnection().send_location();
+                if (MultiSnake.getConnection() != null)
+                    MultiSnake.getConnection().send_location();
             }
         }
     }
@@ -68,16 +89,8 @@ public class World extends Thread {
         this.numOfPlayers = num;
     }
 
-    public Player getMe(){
-        return this.me;
-    }
-
-    public void setMe(Player p){
-        this.me = p;
-    }
-
     public List<Player> getPlayers() {
-        return this.otherPlayers;
+        return players;
     }
 
     public List<Food> getFood() {
@@ -86,5 +99,19 @@ public class World extends Thread {
 
     public int getRadius() {
         return radius;
+    }
+
+    public void render(Graphics gfx) {
+        gfx.setColor(Color.DARK_GRAY);
+        gfx.fillRect(0,0,center.getX() * 2,center.getY() * 2);
+        gfx.setColor(Color.WHITE);
+        gfx.fillCircle(center.getX(), center.getY(), radius); // circle size
+        for(Player pl: getPlayers()) {
+            pl.render(gfx);
+        }
+
+        for (Food f: getFood()) {
+            f.render(gfx);
+        }
     }
 }

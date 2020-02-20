@@ -1,24 +1,35 @@
 package edu.ucsb.multisnake.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.lang.Math;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.awt.Color;
+import edu.ucsb.multisnake.server.Utils.IntPair;
+
 
 public class World extends Thread{
     private List<Player> players;
-    private int numOfPlayers = 0;
+    private int numOfPlayers = 0, numOfFood = 0;
     private List<Food> food;
     private int radius = 400;
+    private IntPair center = new IntPair(400,400);
+
+    private final int FOOD_AMOUNT = 10;
+    private final int UPDATE_TIME = 48;
 
     public World() {
-        players = new ArrayList<Player>();
+        players = new CopyOnWriteArrayList<Player>();
         food = new ArrayList<Food>();
-        for (int i = 0; i < 10; i++) {
+        while (food.size() < FOOD_AMOUNT) {
             spawnFood();
         }
         // run();
+    }
+
+    private double distanceToCenter(IntPair pos) {
+        return pos.distanceTo(center);
     }
 
     public Player spawnPlayer() {
@@ -29,15 +40,15 @@ public class World extends Thread{
         int HUE_FACTOR = 30;
         float hue = (numOfPlayers * HUE_FACTOR) % 255;
 
-        int rgb = Color.HSBtoRGB(hue/256, saturation/256, brightness/256);
-        System.out.println("Hue: " + hue + ", RGB: " + rgb);
+        int rgb = Color.HSBtoRGB(hue/255, saturation/255, brightness/255);
         int r = (rgb >> 16) & 0xFF;
         int g = (rgb >> 8) & 0xFF;
         int b = rgb & 0xFF;
+        // System.out.println("Hue: " + hue + ", RGB: " + r + "," + g + "," + b);
         do {
             x = rand.nextInt(radius);
             y = rand.nextInt(radius);
-        } while (Math.sqrt(x * x + y * y) > radius);
+        } while (distanceToCenter(new IntPair(x,y)) > radius);
         Player p = new Player(numOfPlayers++, x, y, r, g, b);
 
         players.add(p);
@@ -47,29 +58,29 @@ public class World extends Thread{
     public Food spawnFood() {
         Random rand = new Random();
         int x, y, size;
-        float saturation = 175;
-        float brightness = 175;
+        float saturation = 225;
+        float brightness = 255;
         int HUE_FACTOR = 30;
-        float hue = (numOfPlayers * HUE_FACTOR) % 255;
+        float hue = (numOfFood++ * HUE_FACTOR) % 255;
 
-        int rgb = Color.HSBtoRGB(hue/256, saturation/256, brightness/256);
+        int rgb = Color.HSBtoRGB(hue/255, saturation/255, brightness/255);
         int r = (rgb >> 16) & 0xFF;
         int g = (rgb >> 8) & 0xFF;
         int b = rgb & 0xFF;
         do {
-            x = rand.nextInt(radius);
-            y = rand.nextInt(radius);
+            x = rand.nextInt(radius*2);
+            y = rand.nextInt(radius*2);
             size = rand.nextInt(20) + 5; // size is random from 5 to 25 (inclusive)
-        } while (Math.sqrt(x * x + y * y) > radius);
+        } while (distanceToCenter(new IntPair(x,y)) > radius);
         Food f = new Food(x, y, size, r, g, b);
         food.add(f);
         return f;
     }
 
     public void deletePlayerWithId(int id) {
-        for(int i = 0; i < players.size(); i++) {
-            if (players.get(i).getId() == id) {
-                players.remove(i);
+        for(Player player: players) {
+            if (player.getId() == id) {
+                players.remove(player);
                 break;
             }
         }
@@ -77,8 +88,8 @@ public class World extends Thread{
 
     public void printWorld() {
         System.out.println("PLAYERS");
-        for (int i = 0; i < players.size(); i++) {
-            System.out.printf("{%s},", players.get(i).toString());
+        for (Player player: getPlayers()) {
+            System.out.printf("{%s},", player.toString());
         }
         System.out.printf("/n");
     }
@@ -88,10 +99,16 @@ public class World extends Thread{
         while (true) {
             long now = System.currentTimeMillis();
             long updateLength = now - lastLoopTime;
-            if (updateLength >= 100) {
+            if (updateLength >= UPDATE_TIME) {
                 lastLoopTime = now;
-                for(int i = 0; i < players.size(); i++) {
-                    players.get(i).getConnection().broadcast();
+                if (food.size() < FOOD_AMOUNT) {
+                    spawnFood();
+                }
+                for(Player player : getPlayers()) {
+                    if (player.getConnection() != null) {
+                        player.getConnection().broadcast();
+                        player.getConnection().broadcastFood();
+                    }
                 }
                 // printWorld();
             }
@@ -105,7 +122,10 @@ public class World extends Thread{
     }
 
     public List<Player> getPlayers() {
-        return this.players;
+        return players;
     }
     
+    public List<Food> getFood() {
+        return this.food;
+    }
 }
