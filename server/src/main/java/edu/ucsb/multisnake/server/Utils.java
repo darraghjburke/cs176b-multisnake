@@ -1,6 +1,40 @@
 package edu.ucsb.multisnake.server;
 
 public class Utils {
+    public static class Sequence {
+        private final int SEQNUMSIZE = 10000;
+        private int num[];
+        private int ack;
+        private int send;
+        public Sequence(){ num = new int[SEQNUMSIZE]; ack = 0; send = 0; } 
+        public int getNextSeqNum(){
+            int next = (send + 1) % SEQNUMSIZE;
+            if (next != ack) { // not full, can fit more unack pkts
+                num[next] = 1;
+                send = next;
+                return send;
+            } else {
+                System.out.println("Ran out of sequence numbers, waiting for acknowledgements...");
+                return -1;
+            }
+        }
+        public int acknowledge(int n){
+            int next;
+            if (send != ack && num[n]==1){ // not empty, or there are pkts to be acked
+                while ((next = (ack + 1) % SEQNUMSIZE) != n) { // ack pkts up to the n-th one
+                    num[next] = 0;
+                    ack = next;
+                }
+                return ack;
+            } else { // empty
+                System.out.println("No packets needed acknowledgement...");
+                return -1;
+            }
+        }
+    }
+
+    private static double deltaDist = 5.0;
+
     public static class IntPair {
         private final int x;
         private final int y;
