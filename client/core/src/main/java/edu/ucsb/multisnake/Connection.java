@@ -72,9 +72,12 @@ public class Connection extends Thread {
         p.putInt(0); // TODO : need to generate and reuse seqNumber
         p.putInt(length);
         for (int i = 0; i < length; i++) {
-            IntPair pos = me.getPositions().get(i);
-            p.putInt(pos.getX());
-            p.putInt(pos.getY());
+            // added to get rid of out of bounds exception
+            if(me.getPositions().get(i) != null) {
+                IntPair pos = me.getPositions().get(i);
+                p.putInt(pos.getX());
+                p.putInt(pos.getY());
+            }
         }
         boolean sent = p.send(output);
         System.out.println("sent location!");

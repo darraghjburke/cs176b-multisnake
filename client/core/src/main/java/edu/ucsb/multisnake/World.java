@@ -99,7 +99,7 @@ public class World extends Thread {
         gfx.setColor(Color.DARK_GRAY);
         gfx.fillRect(0,0,center.getX() * 2,center.getY() * 2);
         gfx.setColor(Color.WHITE);
-        gfx.fillCircle(center.getX(), center.getY(), radius);
+        gfx.fillCircle(center.getX(), center.getY(), radius); // circle size
         for(Player pl: getPlayers()) {
             pl.render(gfx);
         }
