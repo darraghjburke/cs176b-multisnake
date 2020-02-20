@@ -72,14 +72,18 @@ public class Connection extends Thread {
             return;
         int length = me.getPositions().size();
         Packet p = new Packet(ClientPacketType.MOVE, (3+2*length)*4);
+
         int seqNum = s.getNextSeqNum();
         if (seqNum != -1){
             p.putInt(seqNum);
             p.putInt(length);
             for (int i = 0; i < length; i++) {
-                IntPair pos = me.getPositions().get(i);
-                p.putInt(pos.getX());
-                p.putInt(pos.getY());
+                // added to get rid of out of bounds exception
+                if(me.getPositions().get(i) != null) {
+                    IntPair pos = me.getPositions().get(i);
+                    p.putInt(pos.getX());
+                    p.putInt(pos.getY());
+                }
             }
             sent = p.send(output);
             System.out.println("sent location!");
