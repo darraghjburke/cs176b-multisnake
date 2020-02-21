@@ -33,31 +33,41 @@ public class World extends Thread{
     }
 
     public Player spawnPlayer() {
-        Random rand = new Random();
-        int x, y;
-        float saturation = 175;
-        float brightness = 175;
-        int HUE_FACTOR = 30;
-        float hue = (numOfPlayers * HUE_FACTOR) % 255;
 
-        int rgb = Color.HSBtoRGB(hue/255, saturation/255, brightness/255);
-        int r = (rgb >> 16) & 0xFF;
-        int g = (rgb >> 8) & 0xFF;
-        int b = rgb & 0xFF;
         // System.out.println("Hue: " + hue + ", RGB: " + r + "," + g + "," + b);
-        do {
-            x = rand.nextInt(radius);
-            y = rand.nextInt(radius);
-        } while (distanceToCenter(new IntPair(x,y)) > radius);
-        Player p = new Player(numOfPlayers++, x, y, r, g, b);
+        IntPair pos = randomizePosition();
+        RGBColor color = makeNewPlayerColor();
+        
+        Player p = new Player(numOfPlayers, pos.getX(), pos.getY(), color.r, color.g, color.b);
 
         players.add(p);
         return p;
     }
 
+    public void killPlayer(Player p) {
+        System.out.println("KILLED PLAYER " + p.getId());
+        spawnFood(p.getHead(), p.getTargetLength(), p.getR(), p.getG(), p.getB());
+        List<IntPair> newPosition = new ArrayList<IntPair>();
+        newPosition.add(randomizePosition());
+        p.setPositions(newPosition);
+        RGBColor color = makeNewPlayerColor();
+        p.setColor(color.r, color.g, color.b);
+    }
+
+    public IntPair randomizePosition() {
+        Random rand = new Random();
+        IntPair pair;
+        do {
+            pair = new IntPair(rand.nextInt(radius), rand.nextInt(radius));
+        } while (distanceToCenter(pair) > radius);
+        return pair;
+    }
+
     public Food spawnFood() {
         Random rand = new Random();
-        int x, y, size;
+        int size;
+        size = rand.nextInt(20) + 5;
+        
         float saturation = 225;
         float brightness = 255;
         int HUE_FACTOR = 30;
@@ -67,12 +77,39 @@ public class World extends Thread{
         int r = (rgb >> 16) & 0xFF;
         int g = (rgb >> 8) & 0xFF;
         int b = rgb & 0xFF;
-        do {
-            x = rand.nextInt(radius*2);
-            y = rand.nextInt(radius*2);
-            size = rand.nextInt(20) + 5; // size is random from 5 to 25 (inclusive)
-        } while (distanceToCenter(new IntPair(x,y)) > radius);
-        Food f = new Food(x, y, size, r, g, b);
+        return spawnFood(randomizePosition(), size, r, g, b);
+    }
+
+    public class RGBColor {
+        public int r;
+        public int g;
+        public int b;
+
+        public RGBColor(int r, int g, int b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+
+    }
+
+    public RGBColor makeNewPlayerColor() {
+        Random rand = new Random();
+        
+        float saturation = 175;
+        float brightness = 175;
+        int HUE_FACTOR = 30;
+        float hue = (numOfPlayers++ * HUE_FACTOR) % 255;
+
+        int rgb = Color.HSBtoRGB(hue/255, saturation/255, brightness/255);
+        int r = (rgb >> 16) & 0xFF;
+        int g = (rgb >> 8) & 0xFF;
+        int b = rgb & 0xFF;
+        return new RGBColor(r,g,b);
+    }
+
+    public Food spawnFood(IntPair position, int size, int r, int g, int b) {        
+        Food f = new Food(position.getX(), position.getY(), size, r, g, b);
         food.add(f);
         return f;
     }
@@ -104,6 +141,12 @@ public class World extends Thread{
                 if (food.size() < FOOD_AMOUNT) {
                     spawnFood();
                 }
+                for (Player player: getPlayers()) {
+                    if (player.getPositions().size() > 0 && distanceToCenter(player.getHead()) > radius) {
+                        killPlayer(player);
+                    }
+                }
+                
                 for(Player player : getPlayers()) {
                     if (player.getConnection() != null) {
                         player.getConnection().broadcast();

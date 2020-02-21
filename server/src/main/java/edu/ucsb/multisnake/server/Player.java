@@ -75,4 +75,9 @@ public class Player {
     return conn;
   }
 
+  public void kill() {
+    positions.clear();
+    
+  }
+
 }
