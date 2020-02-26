@@ -35,12 +35,13 @@ public class World extends Thread {
     }
 
     public void deletePlayerWithId(int id) {
-        for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).getId() == id) {
-                players.remove(i);
+        for (Player player : players) {
+            if (player.getId() == id) {
+                players.remove(player);
                 break;
             }
         }
+        numOfPlayers--;
     }
 
     public Player getPlayerWithId(int id) {

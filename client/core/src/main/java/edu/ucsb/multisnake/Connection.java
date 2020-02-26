@@ -6,7 +6,9 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.rmi.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.EllipseShapeBuilder;
 
@@ -129,6 +131,10 @@ public class Connection extends Thread {
                 break;
   
             case ServerPacketType.BCAST_PLAYERS:
+                Set<Integer> dead = new HashSet<Integer>(); 
+                for(Player player : world.getPlayers()){
+                    dead.add(player.getId());
+                }
                 seqNumber = bb.getInt();
                 numPlayers = bb.getInt();
                 for (int j=0; j<numPlayers; j++) {
@@ -140,8 +146,9 @@ public class Connection extends Thread {
                     current_length = bb.getInt();
                     List<IntPair> positions = new ArrayList<IntPair>();
                     if (world.getPlayerWithId(id) == null) {
-                        world.addPlayer(new Player(id, r, g, b));        
-                    // update position for other players
+                        world.addPlayer(new Player(id, r, g, b));
+                    } else {
+                        dead.remove(id);
                     }
                     for (int i = 0; i < current_length; i++){
                         x = bb.getInt();
@@ -154,8 +161,11 @@ public class Connection extends Thread {
                     if (!p.isMe()){
                         p.setPositions(positions);
                     }
-                    System.out.printf("[BCAST_PLAYERS] SeqNumber: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, id, r, g, b, positions.toString());
+                    System.out.printf("[BCAST_PLAYERS] SeqNumber: %d numPlayers: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, numPlayers, id, r, g, b, positions.toString());
                     System.out.flush();
+                }
+                for (Integer idInteger : dead){
+                    world.deletePlayerWithId(idInteger);
                 }
                 break;
 
