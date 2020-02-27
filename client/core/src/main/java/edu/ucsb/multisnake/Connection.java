@@ -157,6 +157,9 @@ public class Connection extends Thread {
                     System.out.printf("[BCAST_PLAYERS] SeqNumber: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, id, r, g, b, positions.toString());
                     System.out.flush();
                 }
+                if (s.acknowledge(seqNumber) == -1) { 
+                    System.out.println("RECONCILE FAIL");
+                }
                 break;
 
             case ServerPacketType.BCAST_FOOD:

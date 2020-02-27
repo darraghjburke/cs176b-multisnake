@@ -2,30 +2,40 @@ package edu.ucsb.multisnake.server;
 
 public class Utils {
     public static class Sequence {
-        private final int SEQNUMSIZE = 10000;
+        /* empty condition: acked == unacked, means no unacked pkts
+           full condition: (unacked+1)%SEQNUMSIZE == acked, means all (SEQNUMSIZE-1) pkts are unacked yet */
+
+        private final int SEQNUMSIZE = 10001; // 1 more slot needed to distinct between empty vs full
         private int num[];
-        private int ack;
-        private int send;
-        public Sequence(){ num = new int[SEQNUMSIZE]; ack = 0; send = 0; } 
+        private int acked;   // pointing to the last acked seq num
+        private int unacked; // pointing to the last used seq num (wait to be acked)
+        public Sequence() { 
+            num = new int[SEQNUMSIZE]; 
+            acked = 0; 
+            unacked = 0; 
+        } 
+
         public int getNextSeqNum(){
-            int next = (send + 1) % SEQNUMSIZE;
-            if (next != ack) { // not full, can fit more unack pkts
+            int next = (unacked + 1) % SEQNUMSIZE;
+            if (next != acked) { // not full, can fit more unacked pkts
                 num[next] = 1;
-                send = next;
-                return send;
+                unacked = next;
+                return unacked;
             } else {
-                System.out.println("Ran out of sequence numbers, waiting for acknowledgements...");
+                System.out.println("Too many unacked pkts, ran out of sequence numbers!");
                 return -1;
             }
         }
+
         public int acknowledge(int n){
-            int next;
-            if (send != ack && num[n]==1){ // not empty, or there are pkts to be acked
-                while ((next = (ack + 1) % SEQNUMSIZE) != n) { // ack pkts up to the n-th one
+            int next = (acked + 1) % SEQNUMSIZE;
+            if (unacked != acked && num[n]==1){ // not empty, there are more pkts to be acked
+                while (acked != n && num[next]==1) { // ack pkts up to the n-th one (including n)
                     num[next] = 0;
-                    ack = next;
+                    acked = next;
+                    next = (acked + 1) % SEQNUMSIZE;
                 }
-                return ack;
+                return acked;
             } else { // empty
                 System.out.println("No packets needed acknowledgement...");
                 return -1;
