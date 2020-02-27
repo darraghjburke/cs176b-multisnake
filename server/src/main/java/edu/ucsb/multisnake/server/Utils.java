@@ -43,6 +43,8 @@ public class Utils {
         }
     }
 
+    private static double deltaDist = 5.0;
+
     public static class IntPair {
         private final int x;
         private final int y;
