@@ -8,6 +8,8 @@ import java.rmi.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.EllipseShapeBuilder;
+
 import edu.ucsb.multisnake.Packet.ClientPacketType;
 import edu.ucsb.multisnake.Packet.ServerPacketType;
 import edu.ucsb.multisnake.Utils.*;
