@@ -20,6 +20,7 @@ public class Connection extends Thread {
     private World world;
     private Player player;
     private boolean isConnected;
+    private int seqNumber = 0;
 
     public Connection(Socket socket, Player p, World w) throws IOException {
         super("Connection");
@@ -53,7 +54,7 @@ public class Connection extends Thread {
                         p.send(output);
                     break;
                     case ClientPacketType.MOVE:
-                        int seqNumber = bb.getInt();
+                        seqNumber = bb.getInt();
                         int currLength = bb.getInt();
                         List<IntPair> positions = new ArrayList<IntPair>();
                         for (int i = 0; i < currLength; i++) {
@@ -85,7 +86,7 @@ public class Connection extends Thread {
             packetLength += 24 + p.getPositions().size() * 8;
         }
         Packet p = new Packet(ServerPacketType.BCAST_PLAYERS, packetLength);
-        p.putInt(0);
+        p.putInt(seqNumber);
         p.putInt(world.getPlayers().size());
         for(Player player: world.getPlayers()) {
             p.putInt(player.getId());
