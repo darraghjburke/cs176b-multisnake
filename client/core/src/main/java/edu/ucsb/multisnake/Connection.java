@@ -109,7 +109,7 @@ public class Connection extends Thread {
     }
 
     public void processPacket(ByteBuffer bb) {
-        while(bb.hasRemaining()) {
+        if(bb.hasRemaining()) {
           int packetType = bb.getInt();
           int seqNumber,numFood,numPlayers,id,r,g,b,x,y,target_length,current_length,size;
           switch (packetType) {
@@ -183,7 +183,7 @@ public class Connection extends Thread {
                     x = bb.getInt();
                     y = bb.getInt();
                     food.add(new Food(x, y, size, r, g, b));
-                    System.out.printf("[BCAST_FOOD] size: %d r: %d g: %d b: %d x: %s, y: %s \n", size, r, g, b, x, y);
+                    // System.out.printf("[BCAST_FOOD] size: %d r: %d g: %d b: %d x: %s, y: %s \n", size, r, g, b, x, y);
                     System.out.flush();
                 }
                 world.setFood(food);    
