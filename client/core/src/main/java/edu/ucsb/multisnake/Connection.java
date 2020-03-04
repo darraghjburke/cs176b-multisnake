@@ -10,8 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.EllipseShapeBuilder;
-
 import edu.ucsb.multisnake.Packet.ClientPacketType;
 import edu.ucsb.multisnake.Packet.ServerPacketType;
 import edu.ucsb.multisnake.Utils.*;
@@ -87,6 +85,7 @@ public class Connection extends Thread {
                     p.putInt(pos.getY());
                 }
             }
+            s.setSendTime(seqNum, System.currentTimeMillis());
             sent = p.send(output);
             System.out.println("sent location!");
             System.out.flush();
@@ -109,7 +108,7 @@ public class Connection extends Thread {
     }
 
     public void processPacket(ByteBuffer bb) {
-        while(bb.hasRemaining()) {
+        if (bb.hasRemaining()) {
           int packetType = bb.getInt();
           int seqNumber,numFood,numPlayers,id,r,g,b,x,y,target_length,current_length,size;
           switch (packetType) {
@@ -136,6 +135,11 @@ public class Connection extends Thread {
                     dead.add(player.getId());
                 }
                 seqNumber = bb.getInt();
+                if (s.acknowledge(seqNumber) == -1) { 
+                    System.out.println("RECONCILE FAIL");
+                } else {
+                    s.calAckTime(seqNumber);
+                }
                 numPlayers = bb.getInt();
                 for (int j=0; j<numPlayers; j++) {
                     id = bb.getInt();
@@ -163,9 +167,6 @@ public class Connection extends Thread {
                     }
                     System.out.printf("[BCAST_PLAYERS] SeqNumber: %d numPlayers: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, numPlayers, id, r, g, b, positions.toString());
                     System.out.flush();
-                }
-                if (s.acknowledge(seqNumber) == -1) { 
-                    System.out.println("RECONCILE FAIL");
                 }
                 for (Integer idInteger : dead){
                     world.deletePlayerWithId(idInteger);
