@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.awt.Color;
 import edu.ucsb.multisnake.server.Utils.IntPair;
-
+import java.lang.Object;
 
 public class World extends Thread{
     private List<Player> players;
@@ -53,6 +53,22 @@ public class World extends Thread{
 
         players.add(p);
         return p;
+    }
+    
+    public void interpolate(Player p) {
+        //The client needs to know his last two position-updates
+        //AND the time since the last update from the server
+        IntPair newPosition = p.getHead();
+        IntPair oldPosition = p.getPositions().get(1);
+        int x_pos = oldPosition.getX(); 
+        int y_pos = oldPosition.getY();
+        int differenceX = newPosition.getX() - x_pos;
+        int differenceY = oldPosition.getY() - y_pos;
+
+        x_pos += differenceX / UPDATE_TIME;
+        y_pos += differenceY / UPDATE_TIME;
+        IntPair updatedPosition = new IntPair(x_pos, y_pos);
+        p.setPosition(updatedPosition);
     }
 
     public Food spawnFood() {
@@ -108,6 +124,7 @@ public class World extends Thread{
                     if (player.getConnection() != null) {
                         player.getConnection().broadcast();
                         player.getConnection().broadcastFood();
+                        // interpolate(player);
                     }
                 }
                 // printWorld();

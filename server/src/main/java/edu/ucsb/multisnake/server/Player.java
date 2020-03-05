@@ -59,6 +59,10 @@ public class Player {
     positions = pos;
   }
 
+  public void setPosition(IntPair pos) {
+    positions.add(0, pos);
+  }
+
   public IntPair getHead() {
     return positions.get(0);
   }
