@@ -15,9 +15,10 @@ public class MultiSnake extends BasicGame {
 
     private World world;
     private static Connection conn;
-    private final String hostname = "localhost";
+    private final String hostname = "csil.cs.ucsb.edu";
     private final int port = 8000;
     private FitViewport viewport;
+    private long lastUpdateTime = System.currentTimeMillis();
     float gameWidth = 800;
     float gameHeight = 800;
 
@@ -64,6 +65,11 @@ public class MultiSnake extends BasicGame {
         Player me = world.findMe();
         if (me != null) me.moveTowards(new IntPair(Gdx.input.getX(), Gdx.input.getY()));
         if (conn == null) System.out.println("CONNECTION IS NULL");
+        long now = System.currentTimeMillis();
+        if (now - lastUpdateTime >= 17) {
+            getConnection().send_location();
+        }
+        
     }
     
     @Override
