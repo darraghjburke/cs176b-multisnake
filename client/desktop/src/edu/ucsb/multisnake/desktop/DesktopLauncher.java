@@ -13,6 +13,6 @@ public class DesktopLauncher {
 		config.width = 800;
 		config.height = 800;
 		config.useHDPI = true;
-		new DesktopMini2DxGame(new MultiSnake(), config);
+		new DesktopMini2DxGame(new MultiSnake(arg), config);
 	}
 }

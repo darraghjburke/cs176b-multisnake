@@ -21,7 +21,30 @@ public class MultiSnake extends BasicGame {
     private long lastUpdateTime = System.currentTimeMillis();
     float gameWidth = 800;
     float gameHeight = 800;
+    private int clientUpdateRate = 17;
+    public boolean interpolation = true, prediction = true, reconciliation = true;
+    public static MultiSnake GAME;
 
+    public MultiSnake(String[] args) {
+        super();
+        for(int i = 0; i < args.length; i++) {
+            String arg = args[i];
+            if (arg.equals("clientUpdateRate")) {
+                clientUpdateRate = Integer.parseInt(args[++i]);
+            }
+            if (arg.equals("noInterpolate")) {
+                interpolation = false;
+            }
+            if (arg.equals("noPredict")) {
+                prediction = false;
+            }
+            if (arg.equals("noReconcile")) {
+                reconciliation = false;
+            }
+            System.out.printf("\nSettings: %d %s %s %s\n\n", clientUpdateRate, interpolation ? "true" : "false", prediction ? "true" : "false", reconciliation ? "true" : "false");
+        }
+        GAME = this;
+    }
 
     @Override
     public void initialise() {
@@ -43,7 +66,7 @@ public class MultiSnake extends BasicGame {
         if (me != null) me.moveTowards(new IntPair(Gdx.input.getX(), Gdx.input.getY()));
         if (conn == null) System.out.println("CONNECTION IS NULL");
         long now = System.currentTimeMillis();
-        if (now - lastUpdateTime >= 17) {
+        if (now - lastUpdateTime >= clientUpdateRate) {
             getConnection().send_location();
         }
         
