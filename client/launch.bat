@@ -1,0 +1,1 @@
+for /l %%x in (1, 1, %1) do start gradle launchDesktop --args "clientUpdateRate 1000"
