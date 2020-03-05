@@ -22,7 +22,8 @@ public class MultiSnake extends BasicGame {
     float gameWidth = 800;
     float gameHeight = 800;
     private int clientUpdateRate = 17;
-    private boolean interpolation = true, prediction = true, reconciliation = true;
+    public boolean interpolation = true, prediction = true, reconciliation = true;
+    public static MultiSnake GAME;
 
     public MultiSnake(String[] args) {
         super();
@@ -40,8 +41,9 @@ public class MultiSnake extends BasicGame {
             if (arg.equals("noReconcile")) {
                 reconciliation = false;
             }
-            System.out.printf("%d %s %s %s", clientUpdateRate, interpolation ? "true" : "false", prediction ? "true" : "false", reconciliation ? "true" : "false");
+            System.out.printf("\nSettings: %d %s %s %s\n\n", clientUpdateRate, interpolation ? "true" : "false", prediction ? "true" : "false", reconciliation ? "true" : "false");
         }
+        GAME = this;
     }
 
     @Override

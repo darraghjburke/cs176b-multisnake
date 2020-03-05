@@ -158,7 +158,7 @@ public class Connection extends Thread {
                     }
                     Player p = world.getPlayerWithId(id);
                     p.setTargetLength(target_length);
-                    if (!p.isMe()){
+                    if (!p.isMe() || !MultiSnake.GAME.prediction){
                         p.setPositions(positions);
                     }
                     System.out.printf("[BCAST_PLAYERS] SeqNumber: %d numPlayers: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, numPlayers, id, r, g, b, positions.toString());
