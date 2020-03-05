@@ -165,6 +165,7 @@ public class Connection extends Thread {
                     if (!p.isMe()){
                         p.setPositions(positions);
                     }
+                    System.out.printf("AvgAckTime: %d\n",s.getAvgAckTime());
                     System.out.printf("[BCAST_PLAYERS] SeqNumber: %d numPlayers: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, numPlayers, id, r, g, b, positions.toString());
                     System.out.flush();
                 }
