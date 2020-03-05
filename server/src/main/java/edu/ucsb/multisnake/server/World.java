@@ -55,7 +55,7 @@ public class World extends Thread{
         return p;
     }
     
-    public void interpolate(Player p) {
+    public void interpolate(Player p) { 
         //The client needs to know his last two position-updates
         //AND the time since the last update from the server
         IntPair newPosition = p.getHead();
