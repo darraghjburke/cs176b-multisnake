@@ -59,7 +59,7 @@ public class World extends Thread{
         //The client needs to know his last two position-updates
         //AND the time since the last update from the server
         IntPair newPosition = p.getHead();
-        IntPair oldPosition = p.getPositions().get(1);
+        IntPair oldPosition = p.getLastLocation();
         int x_pos = oldPosition.getX(); 
         int y_pos = oldPosition.getY();
         int differenceX = newPosition.getX() - x_pos;
@@ -124,8 +124,8 @@ public class World extends Thread{
                     if (player.getConnection() != null) {
                         player.getConnection().broadcast();
                         player.getConnection().broadcastFood();
-                        // interpolate(player);
                     }
+                    interpolate(player);
                 }
                 // printWorld();
             }

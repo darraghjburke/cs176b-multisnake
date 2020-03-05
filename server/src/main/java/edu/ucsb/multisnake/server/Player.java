@@ -60,11 +60,15 @@ public class Player {
   }
 
   public void setPosition(IntPair pos) {
-    positions.add(0, pos);
+    positions.set(0, pos);
   }
 
   public IntPair getHead() {
     return positions.get(0);
+  }
+
+  public IntPair getLastLocation() {
+    return positions.get(positions.size() - 1); 
   }
 
   public void grow(int amt) {

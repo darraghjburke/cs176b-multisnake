@@ -60,6 +60,7 @@ public class Connection extends Thread {
                         for (int i = 0; i < currLength; i++) {
                             positions.add(new IntPair(bb.getInt(), bb.getInt()));
                         }
+                        // player.setPosition(positions.get(0));
                         player.setPositions(positions);
                         // System.out.printf("[MOVE] SeqNumber: %d x: %d y: %d \n", seqNumber, x, y);
                     // TODO : update player position
