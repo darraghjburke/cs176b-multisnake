@@ -174,7 +174,7 @@ public class Connection extends Thread {
                         }
                         Player p = world.getPlayerWithId(id);
                         p.setTargetLength(target_length);
-                        if (!p.isMe()){
+                        if (!p.isMe() || !MultiSnake.GAME.prediction){
                             p.setPositions(positions);
                         }
                         System.out.printf("[BCAST_PLAYERS] SeqNumber: %d numPlayers: %d ID: %d r: %d g: %d b: %d pos: %s \n", seqNumber, numPlayers, id, r, g, b, positions.toString());
@@ -185,21 +185,21 @@ public class Connection extends Thread {
                     }
                 break;
 
-                case ServerPacketType.BCAST_FOOD:
-                    List<Food> food = new ArrayList<Food>();
-                    numFood = bb.getInt();
-                    for (int j=0; j<numFood; j++) {
-                        size = bb.getInt();
-                        r = bb.getInt();
-                        g = bb.getInt();
-                        b = bb.getInt();
-                        x = bb.getInt();
-                        y = bb.getInt();
-                        food.add(new Food(x, y, size, r, g, b));
-                        System.out.printf("[BCAST_FOOD] size: %d r: %d g: %d b: %d x: %s, y: %s \n", size, r, g, b, x, y);
-                        System.out.flush();
-                    }
-                    world.setFood(food);    
+            case ServerPacketType.BCAST_FOOD:
+                List<Food> food = new ArrayList<Food>();
+                numFood = bb.getInt();
+                for (int j=0; j<numFood; j++) {
+                    size = bb.getInt();
+                    r = bb.getInt();
+                    g = bb.getInt();
+                    b = bb.getInt();
+                    x = bb.getInt();
+                    y = bb.getInt();
+                    food.add(new Food(x, y, size, r, g, b));
+                    // System.out.printf("[BCAST_FOOD] size: %d r: %d g: %d b: %d x: %s, y: %s \n", size, r, g, b, x, y);
+                    System.out.flush();
+                }
+                world.setFood(food);    
                 break;
             }
         }
