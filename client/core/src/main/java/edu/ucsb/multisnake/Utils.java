@@ -9,10 +9,17 @@ public class Utils {
         private int num[];
         private int acked;   // pointing to the last acked seq num
         private int unacked; // pointing to the last used seq num (wait to be acked)
+        private long time[];
+        private int numAcked; // number of pkts acked so far
+        private long totalTime; // acumulative time for acked pkts
+
         public Sequence() { 
             num = new int[SEQNUMSIZE]; 
+            time = new long[SEQNUMSIZE];
             acked = 0; 
             unacked = 0; 
+            numAcked = 0;
+            totalTime = 0;
         } 
 
         public int getNextSeqNum(){
@@ -37,8 +44,25 @@ public class Utils {
                 }
                 return acked;
             } else { // empty
-                System.out.println("No packets needed acknowledgement...");
+                //System.out.println("No packets needed acknowledgement...");
                 return -1;
+            }
+        }
+
+        public void setSendTime(int i, long current){
+            time[i] = current;
+        }
+
+        public void calAckTime(int i) {
+            totalTime += (System.currentTimeMillis()-time[i]);
+            numAcked += 1;
+        }
+
+        public long getAvgAckTime() {
+            if (numAcked > 0) {
+                return totalTime/numAcked;
+            } else {
+                return (Long) null;
             }
         }
     }
