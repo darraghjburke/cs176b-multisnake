@@ -140,6 +140,16 @@ public class Player {
         for (IntPair pos: positions) {
             gfx.fillCircle(pos.getX(), pos.getY(), 40);
         }
+        double normal = direction + Math.PI / 2;
+        IntPair eyeL = getHead().moveDirection(direction, 32).moveDirection(normal, 10);
+        IntPair eyeR = getHead().moveDirection(direction, 32).moveDirection(normal, -10);
+        gfx.setColor(Color.WHITE);
+        gfx.fillCircle(eyeL.getX(), eyeL.getY(), 10);
+        gfx.fillCircle(eyeR.getX(), eyeR.getY(), 10);
+        gfx.setColor(Color.BLACK);
+        gfx.fillCircle(eyeL.getX(), eyeL.getY(), 5);
+        gfx.fillCircle(eyeR.getX(), eyeR.getY(), 5);
+
     }
 
 }

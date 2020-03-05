@@ -69,7 +69,7 @@ public class World extends Thread {
     }*/
 
     public void run() {
-        long lastLoopTime = System.currentTimeMillis();
+        /*long lastLoopTime = System.currentTimeMillis();
         System.out.println("World loop started");
         while (true) {
             long now = System.currentTimeMillis();
@@ -79,7 +79,7 @@ public class World extends Thread {
                 if (MultiSnake.getConnection() != null)
                     MultiSnake.getConnection().send_location();
             }
-        }
+        }*/
     }
 
     public int getNumOfPlayers(){
