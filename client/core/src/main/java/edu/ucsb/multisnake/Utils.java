@@ -44,7 +44,7 @@ public class Utils {
                 }
                 return acked;
             } else { // empty
-                System.out.println("No packets needed acknowledgement...");
+                //System.out.println("No packets needed acknowledgement...");
                 return -1;
             }
         }
