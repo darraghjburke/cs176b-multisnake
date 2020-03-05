@@ -15,7 +15,7 @@ public class MultiSnake extends BasicGame {
 
     private World world;
     private static Connection conn;
-    private final String hostname = "localhost";
+    private final String hostname = "csil.cs.ucsb.edu";
     private final int port = 8000;
     private FitViewport viewport;
     float gameWidth = 800;
